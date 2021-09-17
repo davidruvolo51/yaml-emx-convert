@@ -76,6 +76,29 @@ entities:
           value: 61
 ```
 
+## Getting Started
+
+### Installation
+
+This package has not been published yet. For now, you can install this library by cloning the repository.
+
+```shell
+git clone https://github.com/davidruvolo51/yaml-emx-convert
+```
+
+And then building and installing the package locally.
+
+```shell
+# build using one of the following commands
+tox -e build 
+python setup.py sdist
+python setup.py bdist_wheel
+
+
+# install from the compressed file
+python3 -m pip install dist/...tar.gz
+```
+
 ### Usage
 
 Define your data model in yaml file as outlined in the previous section and import into your script. Specify the path to the yaml file when creating a new instance.
@@ -83,7 +106,7 @@ Define your data model in yaml file as outlined in the previous section and impo
 ```python
 from emxconvert.convert import Convert
 
-c = Convert(files = "path/to/my/file.yml")
+c = Convert(files = ['path/to/my/file.yml', 'path/to/my/another_file.yml'])
 ```
 
 Use the method `convert` to compile the yaml into EMX format. By default, if `version` and `date` are defined at the package level, this information will be appended to the package description or set as the description (if it wasn't provided). Use the argument `includePkgMeta` to disable this behavior.
