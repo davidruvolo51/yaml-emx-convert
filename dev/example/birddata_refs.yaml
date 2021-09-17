@@ -1,0 +1,49 @@
+name: birdDataRefs
+label: Bird Data References
+description: Reference Tables for birdData
+version: 0.9000
+date: 2021-09-14
+
+defaults:
+  idAttribute: false
+  auto: false
+  dataType: string
+  nillable: True
+
+entities:
+  - name: states
+    label: Australian States
+    label-nl: Australische Staten
+    description: Australian States and Codes
+    attributes:
+      - name: code
+        idAttribute: true
+        dataType: string
+      - name: category
+      - name: name
+        label-nl: naam
+    data:          
+      - code: AU-ACT
+        category: territory
+        name: Australian Capital Territory
+      - code: AU-NSW
+        category: state
+        name: New South Wales
+      - code: AU-NT
+        category: territory
+        name: Northern Territory
+      - code: AU-QLD
+        category: state
+        name: Queensland
+      - code: AU-SA
+        category: state
+        name: South Australia
+      - code: AU-TAS
+        category: state
+        name: Tasmania
+      - code: AU-VIC
+        category: state
+        name: Victori
+      - code: AU-WA
+        category: state
+        name: Western Australia

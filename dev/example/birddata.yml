@@ -1,0 +1,114 @@
+name: birdData
+label: Bird Data
+description: Reporting Rates of Australian Birds
+version: 0.9100
+date: 2021-09-14
+
+defaults:
+  dataType: string
+  nillable: true
+  idAttribute: false
+  lookupAttribute: false
+
+entities:
+  - name: species
+    label: Species
+    label-nl: Soorten
+    description: Reporting Counts and Rates by Species
+    attributes:
+      - name: birdID
+        name-species: speciesID
+        label: BirdID
+        description: Species Identifier
+        idAttribute: true
+        nillable: false
+      - name: commonName
+        label: Common Name
+        description: Commonly used name for a species
+      - name: scientificName
+        label: Scientific Name
+        label-nl: Wetenschappelijke naam
+        description: Scientific name for a species
+      - name: count
+        label: Count
+        dataType: int
+      - name: reportingRate
+        label: Reporting Rate
+        description: Percent reported
+        dataType: decimal
+    data:
+      - birdID: b1
+        commonName: Australian Magpie
+        scientificName: Gymnorhina tibicen
+        count: 827073
+        reportingRate: 35.83
+      - birdID: b2
+        commonName: Magpie-lark
+        scientificName: Grallina cyanoleuca
+        count: 639974
+        reportingRate: 27.72
+      - birdID: b3
+        commonName: Willie Wagtail
+        scientificName: Rhipidura leucophrys
+        count: 583676
+        reportingRate: 25.28
+      - birdID: b4
+        commonName: Welcome Swallow
+        scientificName: Hirundo neoxena
+        count: 511975
+        reportingRate: 22.18
+      - birdID: b5
+        commonName: Galah
+        scientificName: Eolophus roseicapilla
+        count: 473094
+        reportingRate: 20.49
+      - birdID: b6
+        commonName: Red Wattlebird
+        scientificName: Anthochaera carunculata
+        count: 457405
+        reportingRate: 19.81
+      - birdID: b7
+        commonName: Rainbow Lorikeet
+        scientificName: Trichoglossus moluccanus
+        count: 453342
+        reportingRate: 19.64
+      - birdID: b8
+        commonName: Superb Fairy-wren
+        scientificName: Malurus cyaneus
+        count: 442306
+        reportingRate: 19.16
+      - birdID: b9
+        commonName: Pacific Black Duck
+        scientificName: Anas superciliosa
+        count: 427747
+        reportingRate: 18.53
+      - birdID: b10
+        commonName: Grey Fantail
+        scientificName: Rhipidura fuliginosa
+        count: 423237
+        reportingRate: 18.33
+      - birdID: b11
+        commonName: Masked Lapwing
+        scientificName: Vanellus miles
+        count: 417690
+        reportingRate: 18.09
+      - birdID: b12
+        commonName: Noisy Miner
+        scientificName: Manorina melanocephala
+        count: 383926
+        reportingRate: 16.63
+      - birdID: b13
+        commonName: Laughing Kookaburra
+        scientificName: Dacelo novaeguineae
+        count: 379833
+        reportingRate: 16.45
+      - birdID: b14
+        commonName: Crested Pigeon
+        scientificName: Ocyphaps lophotes
+        count: 375735
+        reportingRate: 16.28
+      - birdID: b15
+        commonName: Australian Raven
+        scientificName: Corvus coronoides
+        count: 357750
+        reportingRate: 15.50
