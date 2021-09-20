@@ -1,6 +1,7 @@
-name: birdDataRefs
+name: data_birdDataRefs
 label: Bird Data References
 description: Reference Tables for birdData
+parent: data
 version: 0.9000
 date: 2021-09-14
 

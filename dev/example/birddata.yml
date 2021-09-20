@@ -1,6 +1,7 @@
-name: birdData
+name: data_birdData
 label: Bird Data
 description: Reporting Rates of Australian Birds
+parent: data
 version: 0.9100
 date: 2021-09-14
 
