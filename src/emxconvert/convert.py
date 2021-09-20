@@ -451,19 +451,19 @@ class Convert:
             keys = list(self.yaml.keys())
             if 'name' not in keys:
                 raise ValueError('Error in convert: missing required attribute "name"')
-        
-            if 'entities' not in keys:
-                raise ValueError('Error in convert: missing "entities"')
             
-            emx = {
-                'packages': self.__emx__extract__package__(self.yaml, includePkgMeta),
-                **self.__emx__extract__entities__(self.yaml, priorityNameKey)
-            }
+            emx = {}            
+            if 'entities' in keys:
+                emx = {
+                    **self.__emx__extract__entities__(self.yaml, priorityNameKey)
+                }
+
+            emx['packages'] = self.__emx__extract__package__(self.yaml, includePkgMeta)
 
             self.packages.extend([emx['packages']])
-            self.entities.extend(emx['entities'])
-            self.attributes.extend(emx['attributes'])
-            self.data.update(emx['data'])
+            if 'entities' in emx: self.entities.extend(emx['entities'])
+            if 'attributes' in emx: self.attributes.extend(emx['attributes'])
+            if 'data' in emx: self.data.update(emx['data'])
     
     
     
