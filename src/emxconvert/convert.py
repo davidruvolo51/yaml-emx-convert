@@ -30,7 +30,8 @@ __emx__keys__attr__ = [
     'visible',
     'defaultValue',
     'partOfAttribute',
-    'expression'
+    'expression',
+    'enumOptions'
 ]
 
 __emx__keys__dtype__ = [
