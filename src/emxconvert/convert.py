@@ -5,10 +5,27 @@ from datetime import datetime
 import pandas as pd
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EMX Attributes
-# define known EMX attributes
+# Define lists of known EMX attributes. This lists will be used to identify
+# and extract the contents YAML file, as well as offer some sort of pre-import
+# validation.
+# 
+# The metadata below was pulled from the documentation:
+# https://molgenis.gitbook.io/molgenis/data-management/guide-emx#attributes-options
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 __emx__keys__pkgs__ = ['name', 'label', 'description', 'parent', 'tags']
-__emx__keys__enty__ = ['name','label','extends','package','abstract','description', 'backend', 'tags']
+__emx__keys__enty__ = [
+    'name',
+    'label',
+    'extends',
+    'package',
+    'abstract',
+    'description',
+    'backend',
+    'tags'
+]
 __emx__keys__attr__ = [
     'entity',
     'name',
@@ -34,7 +51,7 @@ __emx__keys__attr__ = [
     'enumOptions'
 ]
 
-__emx__keys__dtype__ = [
+__emx__keys__datatype__ = [
     'bool',
     'categorical',
     'categorical_mref',
@@ -56,8 +73,10 @@ __emx__keys__dtype__ = [
 ]
 
 
-# LoadYaml
-# Load contents of a yaml file
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# READ THE CONTENTS OF A YAML FILE
+# Safely Load a .yml file
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def loadYaml(file: str = None):
     """Load YAML File
     
@@ -68,15 +87,33 @@ def loadYaml(file: str = None):
     """
     with open(file, 'r') as stream:
         try:
-            return yaml.safe_load(stream)
+            contents = yaml.safe_load(stream)
         except yaml.YAMLError as err:
             print("Unable to read yaml:\n" + repr(err))
         stream.close()
+    return contents
 
 
 
-# Markdown Writer
-# Create a new markdown file and write content into it
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# MARKDOWN WRITER
+# Create a series of methods for writing content to a markdown file. I would
+# have used an existing library, but I only need a few methods: write general
+# text, write headings, tables, and specifying linebreaks. I really needed
+# something to convert datasets to markdown tables.
+#
+# @example
+# To use, create a new instance of the `markdownWriter` class.
+# 
+# ```python
+# from emxconvert.convert import markdownWriter
+# md = markdownWriter('myfile.md')
+# md.heading(level = 1, 'Hello World')
+# md.text('This is my cool markdown file')
+# md.save()
+# ```
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class markdownWriter():
     
     def __init__(self, file: str = None):
@@ -168,7 +205,7 @@ class markdownWriter():
         self.linebreaks(n = 2)
      
    
-    def table(self, data):
+    def table(self, data: list = None):
         """
         Write a list of dictionaries to file
         
@@ -202,8 +239,10 @@ class markdownWriter():
              
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EMX Writer
-# Write EMX structure to CSV of XLSX format
+# Write EMX structure to CSV of XLSX format.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class emxWriter:
     def __init__(self,packages, entities, attributes, data):
         """EMX Writer
@@ -217,9 +256,15 @@ class emxWriter:
             
         Example:
             ```
-            writer = emxWriter(packages = pkg, entities = ent, attributes = attribs)
+            from emxconvert.convert import Convert
+            myemx = Convert(...)
+            myemx.convert()
+            writer = emxWriter(
+                packages = myemx.packages,
+                entities = myemx.entities,
+                attributes = myemx.attributes
+            )
             ```
-        
         """
         self.packages = packages
         self.entities = entities
@@ -302,9 +347,10 @@ class emxWriter:
 
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert
-# Primary class for reading, transforming, and writing EMX-YAML markup
+# Read and transform a YAML-EMX markup into excel (CSV, xlsx) EMX format
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class Convert:
     def __init__(self, files: list = []):
         """Convert
@@ -409,7 +455,7 @@ class Convert:
 
                 # provide dataType validation
                 if 'dataType' in d:
-                    if d['dataType'] not in __emx__keys__dtype__:
+                    if d['dataType'] not in __emx__keys__datatype__:
                         raise ValueError(
                             'Error in Convert:\n In entity {}, attribute {} has invalid dataType {}.'
                             .format(d['entity'], d['name'], d['dataType'])
@@ -450,22 +496,31 @@ class Convert:
             self.yaml = loadYaml(file)
         
             keys = list(self.yaml.keys())
-            if 'name' not in keys:
+            if ('name' not in keys) and not('include' in keys):
                 raise ValueError('Error in convert: missing required attribute "name"')
             
-            emx = {}            
+
+            # Is the package defined by an another file?
+            # Build self.emx['package'] based on the presence of 'include'. This option
+            # is useful for situations where a package may have multiple subpackages or
+            # if there are entities that are defined in multiple files.
+            if 'include' in keys:
+                include_yaml = loadYaml(self.yaml['include'])
+                self.packages.extend(self.__emx__extract__package__(include_yaml, includePkgMeta))
+            else:
+                self.packages.extend(self.__emx__extract__package__(self.yaml, includePkgMeta))
+            
+            # process all entities and attributes
+            emx = {}        
             if 'entities' in keys:
                 emx = {
                     **self.__emx__extract__entities__(self.yaml, priorityNameKey)
                 }
 
-            emx['packages'] = self.__emx__extract__package__(self.yaml, includePkgMeta)
-
-            self.packages.extend([emx['packages']])
+            # append EMX components to model where applicable
             if 'entities' in emx: self.entities.extend(emx['entities'])
             if 'attributes' in emx: self.attributes.extend(emx['attributes'])
             if 'data' in emx: self.data.update(emx['data'])
-    
     
     
     def write(
