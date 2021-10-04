@@ -584,7 +584,7 @@ class Convert:
                     self.packages.append(pkg)
                 yaml.update(pkg)
             else:
-                self.packages.extend(self.__emx__extract__package__(yaml, includePkgMeta))
+                self.packages.append(self.__emx__extract__package__(yaml, includePkgMeta))
             
             # process all entities and attributes
             emx = {}        
