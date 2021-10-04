@@ -32,7 +32,7 @@ c = Convert(files = [
 c.convert()
 
 # convert model by setting priority for a specific `name-` key
-c.convert(priorityNameKey = 'name-species')
+# c.convert(priorityNameKey = 'name-species')
 
 
 # view results

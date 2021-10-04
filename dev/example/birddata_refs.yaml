@@ -1,11 +1,11 @@
-# name: data_birdDataRefs
-# label: Bird Data References
-# description: Reference Tables for birdData
-# parent: data
-# version: 0.9000
-# date: 2021-09-14
+name: data_birdDataRefs
+label: Bird Data References
+description: Reference Tables for birdData
+parent: data
+version: 0.9000
+date: 2021-09-14
 
-include: dev/example/base_pkg.yaml
+# include: dev/example/base_pkg.yaml
 
 defaults:
   idAttribute: false
