@@ -73,10 +73,10 @@ __emx__keys__datatype__ = [
 ]
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # READ THE CONTENTS OF A YAML FILE
 # Safely Load a .yml file
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def loadYaml(file: str = None):
     """Load YAML File
     
@@ -115,7 +115,6 @@ def loadYaml(file: str = None):
 # ```
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class markdownWriter():
-    
     def __init__(self, file: str = None):
         """Markdown Writer
         
@@ -123,10 +122,14 @@ class markdownWriter():
             file (str): location to save file
         """
         self.file = file
-        self.md = self.__init__md__(self.file)
+        self.md = self.__new__md(self.file)
         
-        
-    def __init__md__(self, file: str = None):
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # NEW MD
+    # Create a stream to a new md file
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __new__md(self, file: str = None):
         """Init Markdown File
         
         Start a new stream to a markdown file
@@ -136,7 +139,11 @@ class markdownWriter():
         """
         return open(file, mode = 'w', encoding = 'utf-8')
 
-        
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # WRITE
+    # Generic writer
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __write__(self, *text):
         """Writer
         
@@ -147,13 +154,19 @@ class markdownWriter():
         """
         self.md.write(''.join(map(str, text)))
     
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # SAVE
+    # Close stream to markdown file
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def save(self):
         """Save and close file
         """
         self.md.close()
 
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Write Linebreaks
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def linebreaks(self, n: int = 2):
         """Linebreaks
         
@@ -170,7 +183,10 @@ class markdownWriter():
         """
         self.__write__('\n' * n)
 
-     
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Write heading from 1 to 6     
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     
     def heading(self, level: int = 1, title: str = ''):
         """Write Header
         
@@ -193,6 +209,9 @@ class markdownWriter():
         self.linebreaks(n = 1)
 
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Generic content writer
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def text(self, *content):
         """Write Text
         
@@ -205,6 +224,9 @@ class markdownWriter():
         self.linebreaks(n = 2)
      
    
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   # Convert list to markdown table
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def table(self, data: list = None):
         """
         Write a list of dictionaries to file
@@ -286,7 +308,10 @@ class emxWriter:
             sheet.write(0, col, value, format)
     
 
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Write XLSX
+    # Write EMX to excel workbook
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def writeXlsx(self, path, includeData: bool = True):
         """Write XLSX
         
@@ -321,6 +346,10 @@ class emxWriter:
         wb.save()
     
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # WRITE CSV
+    # Write emx to csv format
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def writeCsv(self, dir, includeData: bool = True):
         """Write CSV
         
@@ -371,9 +400,13 @@ class Convert:
         self.entities = []
         self.attributes = []
         self.data = {}
-        self.yaml = False
+        self.lang_attrs = ('label-', 'description-')
     
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # EXTRACT EMX PROPERTIES
+    # Pull all known package attributes. If `includePkgMeta`, date and version
+    # will be extracted (if available) and appended to the package description
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __emx__extract__package__(self, data, includePkgMeta: bool = True):
         """Extract EMX Package Metadata
         
@@ -381,13 +414,14 @@ class Convert:
         
         Attributes:
             data (list): contents of a yaml file
-            includePkgMeta (bool): if TRUE (default), version and date will be added to description
+            includePkgMeta (bool): if TRUE (default), version and date will
+            be added to description
 
         """
         pkg = {}
         keys = list(data.keys())
         for k in keys:
-            if k in __emx__keys__pkgs__ or k.startswith(('label-', 'description-')):
+            if k in __emx__keys__pkgs__ or k.startswith(self.lang_attrs):
                 pkg[k] = data[k]
         
         if includePkgMeta:
@@ -395,40 +429,52 @@ class Convert:
             if 'version' in keys:
                 pkgMeta['version'] = "v" + str(data['version'])
             if 'date' in keys:
-                pkgMeta['date'] = str(datetime.strptime(str(data['date']), "%Y-%m-%d").date())
+                pkgMeta['date'] = str(
+                    datetime.strptime(str(data['date']), '%Y-%m-%d').date()
+                )
             if pkgMeta:
                 if 'description' in keys:
-                    pkg['description'] = pkg['description'] + ' (' + ', '.join(pkgMeta.values()) + ')'
+                    pkg['description'] = '{} ({})'.format(
+                        pkg['description'],
+                        ', '.join(pkgMeta.values())
+                    )
                 else:
                     pkg['description'] = ', '.join(pkgMeta.values())
         return pkg
 
 
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # EXTRACT EMX PROPERTIES
+    # For each entity, pull entity information and build attributes.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __emx__extract__entities__(self, data, priorityNameKey):
         """Extract known EMX entity attributes
         
         Attributes:
             data (list): contents of a yaml file
-            priorityNameKey (string): If supplied, the model will be rendered according
-                to the priority name key (useful if model contains multiple name attributes)
+            priorityNameKey (string): If supplied, the model will be rendered
+                according to the priority name key. This may be useful if
+                model contains multiple name attributes.
 
         """
         emx = {'entities': [], 'attributes': [], 'data': {}}
-        langAttrs = ('label-', 'description-')
         for entity in data['entities']:
 
             entityKeys = list(entity.keys())
 
             if 'name' not in entityKeys:
-                raise ValueError('Error in entity: missing required attribute "name"')
+                raise ValueError(
+                    'Error in entity: missing required attribute "name"'
+                )
             
             if 'attributes' not in entityKeys:
-                raise ValueError('Error in entity: missing required attribute "attributes"')
+                raise ValueError(
+                    'Error in entity: missing required attribute "attributes"'
+                )
 
             e = {'package': data['name']}
             for ekey in entityKeys:
-                if ekey in __emx__keys__enty__ or ekey.startswith(langAttrs):
+                if ekey in __emx__keys__enty__ or ekey.startswith(self.lang_attrs):
                     e[ekey] = entity[ekey]
             emx['entities'].append(e)
             
@@ -443,7 +489,7 @@ class Convert:
                 attrKeys = list(attr.keys())
                 d = {'entity': data['name'] + '_' + entity['name']}
                 for aKey in attrKeys:
-                    if aKey in __valid__emx__attr__ or aKey.startswith(langAttrs):
+                    if aKey in __valid__emx__attr__ or aKey.startswith(self.lang_attrs):
                         d[aKey] = attr[aKey]
                         
                 # adjust priorityKey if mulitple `name` attributes are used
@@ -477,26 +523,53 @@ class Convert:
 
         return emx
     
-    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # CONVERT
+    # `convert` is the primary method for generating EMX models. This method
+    # reads one or more YAML files and transforms them into the main EMX
+    # components: packages, entities, attributes, and data. The component data
+    # is specific to this project. The purpose of `data` is store any datasets
+    # that are defined in the yaml file. This is useful if the user would like
+    # to define a reference entity in the model.
+    #
+    # There are couple of unique features that are available.
+    #
+    # 1. **Data**: users can define datasets directly in the yaml
+    # 2. **Validation**: `convert` provides some validation such as checking
+    #       for incorrect EMX attribute names, invalid dataTypes, etc. This
+    #       may help eliminate import errors.
+    # 3. **Multiple Models**: In some situations, you may need to have a
+    #       single model that has multiple names per attributes. At the time of
+    #       conversion, you can specify the model you wish to generate.
+    # 4. **Multiple files**: render and write multiple models to file
+    # 5. **Include base package**: If you have multiple subpackages within a
+    #       model, you can use the attribute `include` to read and compile 
+    #       the parent package EMX.
+    # 6. **Metadata**: You can define and include EMX metadata at the package
+    #       level. Support is available for `date` and `version`.
+    # 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def convert(self, includePkgMeta: bool = True, priorityNameKey: str = None):
         """Convert Model
         
         Convert yaml file into EMX structure
         
         Attributes:
-            includePkgMeta (bool): if TRUE (default), version and date will be added to description
-            priorityNameKey (str): For EMX markups that are harmonization projects (i.e.,
-                multiple `name` attributes), you can set which name attribute gets priority. This
-                means that you can compile the EMX for different projects. Leave as none if this
-                doesn't apply to you :-)
+            includePkgMeta (bool): if TRUE (default), version and date will
+                be added to description
+            priorityNameKey (str): For EMX markups that are harmonization
+                projects (i.e., multiple `name` attributes), you can set
+                which name attribute gets priority. This means that you can
+                compile the EMX for different projects. Otherwise, leave this
+                as none if this doesn't apply to you :-)
 
         """
         for file in self.files:
             print('Processing: {}'.format(file))
-            self.yaml = loadYaml(file)
+            yaml = loadYaml(file)
         
-            keys = list(self.yaml.keys())
-            if ('name' not in keys) and not('include' in keys):
+            keys = list(yaml.keys())
+            if ('name' not in keys) and ('include' not in keys):
                 raise ValueError('Error in convert: missing required attribute "name"')
             
 
@@ -505,16 +578,19 @@ class Convert:
             # is useful for situations where a package may have multiple subpackages or
             # if there are entities that are defined in multiple files.
             if 'include' in keys:
-                include_yaml = loadYaml(self.yaml['include'])
-                self.packages.extend(self.__emx__extract__package__(include_yaml, includePkgMeta))
+                include_yaml = loadYaml(yaml['include'])
+                pkg = self.__emx__extract__package__(include_yaml, includePkgMeta)
+                if pkg['name'] not in [d['name'] for d in self.packages]:
+                    self.packages.append(pkg)
+                yaml.update(pkg)
             else:
-                self.packages.extend(self.__emx__extract__package__(self.yaml, includePkgMeta))
+                self.packages.extend(self.__emx__extract__package__(yaml, includePkgMeta))
             
             # process all entities and attributes
             emx = {}        
             if 'entities' in keys:
                 emx = {
-                    **self.__emx__extract__entities__(self.yaml, priorityNameKey)
+                    **self.__emx__extract__entities__(yaml, priorityNameKey)
                 }
 
             # append EMX components to model where applicable
@@ -523,6 +599,16 @@ class Convert:
             if 'data' in emx: self.data.update(emx['data'])
     
     
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # WRITE
+    # Write the EMX model to file as csv or xlsx. If excel workbook format is
+    # selected, all data will be written in the standard EMX excel format (
+    # i.e., packages, entities, attributes). Any additional datasets will be
+    # added to a new sheet using the <package_entity> name. The workbook can
+    # then be imported into molgenis. If the user prefers the csv format,
+    # all components will be writen to csv (e.g., packages.csv, entities.csv,
+    # attributes.csv, etc.). 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def write(
         self,
         name: str = None,
@@ -558,6 +644,13 @@ class Convert:
             writer.writeCsv(dir, includeData)
     
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # WRITE SCHEMA
+    # Using the converted YAML-EMX objects, write the model to markdown file.
+    # The file should be provide an overview of the packages defined, entities
+    # for each package and all attributes. Only a select set of columns are
+    # rendered for the tables.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def write_schema(self, path: str = None):
         """Write Model Schema
         
