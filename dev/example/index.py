@@ -2,8 +2,8 @@
 #' FILE: index.py
 #' AUTHOR: David Ruvolo
 #' CREATED: 2021-09-07
-#' MODIFIED: 2021-09-20
-#' PURPOSE: test conversion
+#' MODIFIED: 2021-10-04
+#' PURPOSE: example
 #' STATUS: working
 #' PACKAGES: NA
 #' COMMENTS: NA
@@ -19,13 +19,12 @@
 # python setup.py bdist_wheel
 # ```
 
-from emxconvert.convert import Convert
-# from src.emxconvert.convert import Convert
+# from emxconvert.convert import Convert
+from src.emxconvert.convert import Convert
 
 # set paths to YAML data models
 c = Convert(files = [
-    'dev/example/mypkg.yaml',
-    'dev/example/birddata.yml', 
+    'dev/example/birddata.yaml',
     'dev/example/birddata_refs.yaml'
 ])
 
@@ -33,7 +32,7 @@ c = Convert(files = [
 c.convert()
 
 # convert model by setting priority for a specific `name-` key
-c.convert(priorityNameKey = 'name-species')
+# c.convert(priorityNameKey = 'name-species')
 
 
 # view results
