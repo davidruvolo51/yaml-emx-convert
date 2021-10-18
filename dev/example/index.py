@@ -2,7 +2,7 @@
 #' FILE: index.py
 #' AUTHOR: David Ruvolo
 #' CREATED: 2021-09-07
-#' MODIFIED: 2021-10-04
+#' MODIFIED: 2021-10-18
 #' PURPOSE: example
 #' STATUS: working
 #' PACKAGES: NA
@@ -23,10 +23,7 @@
 from src.emxconvert.convert import Convert
 
 # set paths to YAML data models
-c = Convert(files = [
-    'dev/example/birddata.yaml',
-    'dev/example/birddata_refs.yaml'
-])
+c = Convert(files = ['dev/example/birddata.yaml'])
 
 # convert model with defaults
 c.convert()
@@ -40,7 +37,7 @@ c.packages
 c.entities
 c.attributes
 c.data
-
+c.tags
 
 # write model to excel workbook
 c.write(name = "birddata", format = 'xlsx', outDir = 'dev/example/model/')

@@ -1,30 +1,66 @@
-name: data_birdDataRefs
+name: birdData
 label: Bird Data References
 description: Reference Tables for birdData
 parent: data
-version: 0.9000
-date: 2021-09-14
+tags: dcat:catalog
+version: 1.0.0
+date: 2021-10-15
 
 # include: dev/example/base_pkg.yaml
 
+# set defaults
 defaults:
   idAttribute: false
   auto: false
   dataType: string
   nillable: True
+  
+  
+# define semantic tags
+tagDefinitions:
+  - identifier: ISO:3166
+    label: Australian States and Territories
+    codeSystem: ISO
+    # relationLabel: ISO 3166 Australia
+    relationIRI: https://www.iso.org/obp/#iso:code:3166:AU
+  - identifier: dcat:catalog
+    label: Catalog
+    codeSystem: dcat
+    relationLabel: dcat:catalog
+  - identifier: dcat:dataset
+    label: Dataset
+    codeSystem: dcat
+    relationLabel: dcat:dataset
+    relationIRI: https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+  - identifier:
+    label:
+    codeSystem:
+    relationLabel:
+    relationIRI:
 
+# define pkg entities
 entities:
   - name: states
     label: Australian States
     label-nl: Australische Staten
-    description: Australian States and Codes
+    description: Australian States and Territories
+    tags: ISO:3166,dcat:dataset
     attributes:
       - name: code
+        label: code
+        description: state code
         idAttribute: true
         dataType: string
+        tags: 
       - name: category
+        label: category
+        description: state type (state or territory)
+        tags: 
       - name: name
+        label: name
         label-nl: naam
+        description: state name
+        tags:
     data:          
       - code: AU-ACT
         category: territory
