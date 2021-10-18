@@ -1,23 +1,91 @@
-# name: data_birdData
-# label: Bird Data
-# description: Reporting Rates of Australian Birds
-# parent: data
-# version: 0.9100
-# date: 2021-09-14
+name: birdData
+label: Bird Data References
+description: Reference Tables for birdData
+tags: dcat:catalog
+version: 1.0.0
+date: 2021-10-15
 
-include: dev/example/base_pkg.yaml
-
+# set defaults
 defaults:
-  dataType: string
-  nillable: true
   idAttribute: false
-  lookupAttribute: false
+  auto: false
+  dataType: string
+  nillable: True
+  
+  
+# define semantic tags
+tagDefinitions:
+  - identifier: dcat:catalog
+    label: dcat:Catalog
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+  - identifier: dcat:dataset
+    label: Dataset
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+  - identifier: ISO:3166
+    label: Australian States and Territories
+    objectIRI: https://www.iso.org/obp/#iso:code:3166:AU
+    codeSystem: ISO
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+    invalidAttrib: This column should be excluded
 
+# define pkg entities
 entities:
+  - name: states
+    label: Australian States
+    label-nl: Australische Staten
+    description: Australian States and Territories
+    tags: ISO:3166,dcat:dataset
+    attributes:
+      - name: code
+        label: code
+        description: state code
+        idAttribute: true
+        dataType: string
+      - name: category
+        label: category
+        description: state type (state or territory)
+      - name: name
+        label: name
+        label-nl: naam
+        description: state name
+    data:          
+      - code: AU-ACT
+        category: territory
+        name: Australian Capital Territory
+      - code: AU-NSW
+        category: state
+        name: New South Wales
+      - code: AU-NT
+        category: territory
+        name: Northern Territory
+      - code: AU-QLD
+        category: state
+        name: Queensland
+      - code: AU-SA
+        category: state
+        name: South Australia
+      - code: AU-TAS
+        category: state
+        name: Tasmania
+      - code: AU-VIC
+        category: state
+        name: Victori
+      - code: AU-WA
+        category: state
+        name: Western Australia
+
   - name: species
     label: Species
     label-nl: Soorten
     description: Reporting Counts and Rates by Species
+    tags: dcat:dataset
     attributes:
       - name: birdID
         name-species: speciesID

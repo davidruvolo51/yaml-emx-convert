@@ -72,6 +72,15 @@ __emx__keys__datatype__ = [
     'xref'
 ]
 
+__emx__keys__tags__ = [
+    'identifier',
+    'label',
+    'objectIRI',
+    'relationLabel',
+    'relationIRI',
+    'codeSystem'
+]
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # READ THE CONTENTS OF A YAML FILE
@@ -266,7 +275,7 @@ class markdownWriter():
 # Write EMX structure to CSV of XLSX format.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class emxWriter:
-    def __init__(self,packages, entities, attributes, data):
+    def __init__(self,packages, entities, attributes, data, tags):
         """EMX Writer
         
         Create a new instance of the EMX Writer
@@ -274,7 +283,8 @@ class emxWriter:
         Attributes:
             packages (list): EMX packages
             entities (list): EMX entities
-            attributes (list): EMX attributes 
+            attributes (list): EMX attributes
+            tags (list) : EMX tags
             
         Example:
             ```
@@ -284,7 +294,8 @@ class emxWriter:
             writer = emxWriter(
                 packages = myemx.packages,
                 entities = myemx.entities,
-                attributes = myemx.attributes
+                attributes = myemx.attributes,
+                tags = myemx.tags
             )
             ```
         """
@@ -292,6 +303,7 @@ class emxWriter:
         self.entities = entities
         self.attributes = attributes
         self.data = data
+        self.tags = tags
 
     def ___xlsx__headers__(self, wb, columns, name):
         """Write xlsx headers
@@ -319,7 +331,8 @@ class emxWriter:
         
         Attributes:
             path (string): path to write file
-            includeData: if True (default), any data objects defined in the model will be written to file
+            includeData: If True (default), any data objects defined in the
+                model will be written to file.
 
         """
         wb = pd.ExcelWriter(path, engine = 'xlsxwriter')
@@ -336,6 +349,13 @@ class emxWriter:
         self.___xlsx__headers__(wb, enty.columns.values, 'entities')
         self.___xlsx__headers__(wb, attr.columns.values, 'attributes')
         
+        # write tags if defined
+        if self.tags:
+            tags = pd.DataFrame(self.tags, index = range(0, len(self.tags)))
+            tags.to_excel(wb, sheet_name = 'tags', startrow = 1, header = False, index = False)
+            self.___xlsx__headers__(wb, tags.columns.values, 'tags')
+        
+        # write data to file if present and user has indicated so
         if self.data and includeData:
             for dataset in self.data:
                 i = range(0, len(self.data[dataset]))
@@ -368,12 +388,17 @@ class emxWriter:
         enty.to_csv(dir + '/entities.csv', index = False)
         attr.to_csv(dir + '/attributes.csv', index = False)
         
+        # write data to file if present and user has indicated so
         if self.data and includeData:
             for dataset in self.data:
                 i = range(0, len(self.data[dataset]))
                 df = pd.DataFrame(self.data[dataset], index = i)
                 df.to_csv(dir + '/' + dataset + '.csv', index = False)
 
+        # write tags if defined
+        if self.tags:
+            tags = pd.DataFrame(self.tags, index = range(0, len(self.tags)))
+            tags.to_csv(dir + '/tags.csv', index = False)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -399,6 +424,7 @@ class Convert:
         self.packages = []
         self.entities = []
         self.attributes = []
+        self.tags = []
         self.data = {}
         self.lang_attrs = ('label-', 'description-')
     
@@ -441,6 +467,28 @@ class Convert:
                 else:
                     pkg['description'] = ', '.join(pkgMeta.values())
         return pkg
+
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # EXTRACT EMX TAGS
+    # Tags are defined using the 'tagDefinitions' property. This property name
+    # was selected to avoid name conflicts when 'tags' is used by properties
+    # defined at the same level in the YAML. This method pulls valid keys.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __emx__extract__tags__(self, tags):
+        """Extract known EMX tags
+        
+        @param tags (list) : if present, a list of dictionaries containing
+            tag definitions. Properties must be defined under the
+            `tagDefinitions` tag.
+        """
+        for tag in tags:
+            keys = list(tag.keys())
+            for k in keys:
+                if not (k in __emx__keys__tags__):
+                    del tag[k]
+        return tags
+                    
 
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -585,6 +633,12 @@ class Convert:
                 yaml.update(pkg)
             else:
                 self.packages.append(self.__emx__extract__package__(yaml, includePkgMeta))
+                
+            # Are there tags?
+            # If the object 'tagDefinitions' is present, append to self.tags
+            if 'tagDefinitions' in keys:
+                tags = self.__emx__extract__tags__(yaml['tagDefinitions'])
+                self.tags.extend(tags)
             
             # process all entities and attributes
             emx = {}        
@@ -628,7 +682,7 @@ class Convert:
         if format not in ['csv', 'xlsx']:
             raise ValueError('Error in write: unexpected format ', str(format))
             
-        writer = emxWriter(self.packages, self.entities, self.attributes, self.data)
+        writer = emxWriter(self.packages, self.entities, self.attributes, self.data, self.tags)
         
         if format == 'xlsx':
             file = outDir + '/' + name + '.' + str(format)
