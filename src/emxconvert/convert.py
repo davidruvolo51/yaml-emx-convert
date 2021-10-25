@@ -1,9 +1,6 @@
-
 import os
 import yaml
-from datetime import datetime
 import pandas as pd
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EMX Attributes
@@ -421,11 +418,19 @@ class Convert:
             ```
         """
         self.files = files
+        self.__init__fields__()
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # INIT AND RESET OBJECTS
+    # Set all internal objects to their default state
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __init__fields__(self):
         self.packages = []
         self.entities = []
         self.attributes = []
         self.tags = []
         self.data = {}
+        self.priorityNameKey = None
         self.lang_attrs = ('label-', 'description-')
     
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -493,15 +498,11 @@ class Convert:
     # EXTRACT EMX PROPERTIES
     # For each entity, pull entity information and build attributes.
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def __emx__extract__entities__(self, data, priorityNameKey):
+    def __emx__extract__entities__(self, data):
         """Extract known EMX entity attributes
         
         Attributes:
             data (list): contents of a yaml file
-            priorityNameKey (string): If supplied, the model will be rendered
-                according to the priority name key. This may be useful if
-                model contains multiple name attributes.
-
         """
         emx = {'entities': [], 'attributes': [], 'data': {}}
         for entity in data['entities']:
@@ -526,27 +527,21 @@ class Convert:
             emx['entities'].append(e)
             
 
-            # if specified, append `priorityNameKey` to list of valid attributes
-            __valid__emx__attr__ = __emx__keys__attr__
-            if priorityNameKey:
-                __valid__emx__attr__.append(priorityNameKey)
-            
-
             # pull attribute definitions
             attributes = entity['attributes']
             for attr in attributes:
                 attrKeys = list(attr.keys())
                 d = {'entity': data['name'] + '_' + entity['name']}
                 for aKey in attrKeys:
-                    if aKey in __valid__emx__attr__ or aKey.startswith(self.lang_attrs):
+                    if aKey in __emx__keys__attr__ or aKey.startswith(self.lang_attrs) or aKey == self.priorityNameKey:
                         d[aKey] = attr[aKey]
                         
                 # adjust priorityKey if mulitple `name` attributes are used
-                if bool(priorityNameKey):
-                    if (priorityNameKey in d) and (d[priorityNameKey] != 'none'):
+                if bool(self.priorityNameKey):
+                    if (self.priorityNameKey in d) and (d[self.priorityNameKey] != 'none'):
                         d.pop('name')
-                        d['name'] = d.get(priorityNameKey)
-                        d.pop(priorityNameKey)
+                        d['name'] = d.get(self.priorityNameKey)
+                        d.pop(self.priorityNameKey)
 
                 # provide dataType validation
                 if 'dataType' in d:
@@ -613,6 +608,14 @@ class Convert:
                 as none if this doesn't apply to you :-)
 
         """
+        # make sure internal slots are reset
+        self.__init__fields__()
+        
+        # if specified, set `priorityNameKey`
+        if priorityNameKey:
+            self.priorityNameKey = priorityNameKey
+        
+        # process all named files 
         for file in self.files:
             print('Processing: {}'.format(file))
             yaml = loadYaml(file)
@@ -645,7 +648,7 @@ class Convert:
             emx = {}        
             if 'entities' in keys:
                 emx = {
-                    **self.__emx__extract__entities__(yaml, priorityNameKey)
+                    **self.__emx__extract__entities__(yaml)
                 }
 
             # append EMX components to model where applicable
