@@ -1,0 +1,15 @@
+{
+  "name": "emxconvert",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": "https://github.com/davidruvolo51/yaml-emx-convert",
+  "author": "davidruvolo51",
+  "license": "MIT",
+  "scripts": {
+    "rename": "python3 dev/dev.py",
+    "bumpversion": "bump2version --current-version 0.1.0 minor package.json emxconvert/__version__.py setup.py",
+    "build": "python3 setup.py sdist bdist_wheel",
+    "check": "twine check dist/*",
+    "upload": "twine upload dist/*"
+  }
+}
