@@ -44,14 +44,20 @@ entities:
     tags: ISO:3166,dcat:dataset
     attributes:
       - name: code
+        name-projA: id
+        name-projB: identifier
         label: code
         description: state code
         idAttribute: true
         dataType: string
       - name: category
+        name-projA: states
+        name-projB: regionType
         label: category
         description: state type (state or territory)
       - name: name
+        name-projA: states
+        name-projB: regionName
         label: name
         label-nl: naam
         description: state name
