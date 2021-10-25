@@ -455,9 +455,7 @@ class Convert:
             if 'version' in keys:
                 pkgMeta['version'] = "v" + str(data['version'])
             if 'date' in keys:
-                pkgMeta['date'] = str(
-                    datetime.strptime(str(data['date']), '%Y-%m-%d').date()
-                )
+                pkgMeta['date'] = str(data['date'])
             if pkgMeta:
                 if 'description' in keys:
                     pkg['description'] = '{} ({})'.format(
@@ -465,7 +463,7 @@ class Convert:
                         ', '.join(pkgMeta.values())
                     )
                 else:
-                    pkg['description'] = ', '.join(pkgMeta.values())
+                    pkg['description'] = '; '.join(pkgMeta.values())
         return pkg
 
 
@@ -520,6 +518,7 @@ class Convert:
                     'Error in entity: missing required attribute "attributes"'
                 )
 
+            # pull entity info
             e = {'package': data['name']}
             for ekey in entityKeys:
                 if ekey in __emx__keys__enty__ or ekey.startswith(self.lang_attrs):
@@ -527,11 +526,13 @@ class Convert:
             emx['entities'].append(e)
             
 
+            # if specified, append `priorityNameKey` to list of valid attributes
             __valid__emx__attr__ = __emx__keys__attr__
             if priorityNameKey:
                 __valid__emx__attr__.append(priorityNameKey)
             
 
+            # pull attribute definitions
             attributes = entity['attributes']
             for attr in attributes:
                 attrKeys = list(attr.keys())
@@ -541,11 +542,11 @@ class Convert:
                         d[aKey] = attr[aKey]
                         
                 # adjust priorityKey if mulitple `name` attributes are used
-                if priorityNameKey and priorityNameKey in d:
-                    if d[priorityNameKey] != 'none':
+                if bool(priorityNameKey):
+                    if (priorityNameKey in d) and (d[priorityNameKey] != 'none'):
                         d.pop('name')
-                        d['name'] = d.get(priorityNameKey, None)
-                        d.pop(priorityNameKey, None)
+                        d['name'] = d.get(priorityNameKey)
+                        d.pop(priorityNameKey)
 
                 # provide dataType validation
                 if 'dataType' in d:
