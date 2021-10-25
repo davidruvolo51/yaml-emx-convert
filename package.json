@@ -1,0 +1,11 @@
+{
+  "name": "emxconvert",
+  "version": "0.0.9000",
+  "main": "index.js",
+  "repository": "https://github.com/davidruvolo51/yaml-emx-convert",
+  "author": "davidruvolo51",
+  "license": "MIT",
+  "scripts": {
+    "rename": "python3 dev/dev.py"
+  }
+}
