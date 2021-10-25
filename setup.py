@@ -12,13 +12,13 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'emxconvert'
+NAME = 'yamlemxconvert'
 DESCRIPTION = 'Write and build EMX data models in YAML format'
 URL = 'https://github.com/davidruvolo51/yaml-emx-convert'
 EMAIL = 'd.c.ruvolo@gmail.com'
 AUTHOR = 'David Ruvolo'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.0'
+VERSION = '0.0.1'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
