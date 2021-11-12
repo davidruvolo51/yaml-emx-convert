@@ -1,9 +1,9 @@
 name: birdData
-label: Bird Data References
-description: Reference Tables for birdData
+label: Bird Data
+description: Reporting Rates of Australian Bird Species
 tags: dcat:catalog
 version: 1.0.0
-date: 2021-10-15
+date: 2021-11-12
 
 # set defaults
 defaults:
@@ -11,7 +11,6 @@ defaults:
   auto: false
   dataType: string
   nillable: True
-  
   
 # define semantic tags
 tagDefinitions:
@@ -37,6 +36,43 @@ tagDefinitions:
 
 # define pkg entities
 entities:
+
+  # @section template
+  # @description template for lookup tables
+  - name: template
+    description: lookup table attribute template
+    abstract: true
+    attributes:
+      - name: value
+        idAttribute: true
+        dataType: string
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+      - name: description
+      - name: codesystem
+      - name: code
+      - name: iri
+        dataType: hyperlink
+
+  #////////////////////////////////////
+  # @section test entities
+  # @description define a series of test entities using the template
+  
+  - name: wings
+    description: reference for wing characteristics
+    extends: birdData_template
+  - name: colors
+    description: reference for colors and patterns
+    extends: birdData_template
+  - name: conservationStatus
+    description: reference for conservation status
+    extends: birdData_template
+
+  #////////////////////////////////////
+
+  # @section status
+  # @description lookup table for Australian states and territories
   - name: states
     label: Australian States
     label-nl: Australische Staten

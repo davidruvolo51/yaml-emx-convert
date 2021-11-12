@@ -2,7 +2,7 @@
 #' FILE: index.py
 #' AUTHOR: David Ruvolo
 #' CREATED: 2021-09-07
-#' MODIFIED: 2021-10-25
+#' MODIFIED: 2021-11-12
 #' PURPOSE: example
 #' STATUS: working
 #' PACKAGES: NA
@@ -20,7 +20,7 @@
 # ```
 
 # from emxconvert.convert import Convert
-from src.emxconvert.convert import Convert
+from yamlemxconvert.convert import Convert
 
 # set paths to YAML data models
 c = Convert(files = ['dev/example/birddata.yaml'])

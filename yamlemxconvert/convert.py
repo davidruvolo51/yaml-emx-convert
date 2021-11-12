@@ -490,8 +490,7 @@ class Convert:
             for k in keys:
                 if not (k in __emx__keys__tags__):
                     del tag[k]
-        return tags
-                    
+        return tags                    
 
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -508,16 +507,8 @@ class Convert:
         for entity in data['entities']:
 
             entityKeys = list(entity.keys())
-
             if 'name' not in entityKeys:
-                raise ValueError(
-                    'Error in entity: missing required attribute "name"'
-                )
-            
-            if 'attributes' not in entityKeys:
-                raise ValueError(
-                    'Error in entity: missing required attribute "attributes"'
-                )
+                raise ValueError('Error in entity: missing required attribute "name"')
 
             # pull entity info
             e = {'package': data['name']}
@@ -528,38 +519,38 @@ class Convert:
             
 
             # pull attribute definitions
-            attributes = entity['attributes']
-            for attr in attributes:
-                attrKeys = list(attr.keys())
-                d = {'entity': data['name'] + '_' + entity['name']}
-                for aKey in attrKeys:
-                    if aKey in __emx__keys__attr__ or aKey.startswith(self.lang_attrs) or aKey == self.priorityNameKey:
-                        d[aKey] = attr[aKey]
-                        
-                # adjust priorityKey if mulitple `name` attributes are used
-                if bool(self.priorityNameKey):
-                    if (self.priorityNameKey in d) and (d[self.priorityNameKey] != 'none'):
-                        d.pop('name')
-                        d['name'] = d.get(self.priorityNameKey)
-                        d.pop(self.priorityNameKey)
+            if 'attributes' in entity:
+                attributes = entity['attributes']
+                for attr in attributes:
+                    attrKeys = list(attr.keys())
+                    d = {'entity': data['name'] + '_' + entity['name']}
+                    for aKey in attrKeys:
+                        if aKey in __emx__keys__attr__ or aKey.startswith(self.lang_attrs) or aKey == self.priorityNameKey:
+                            d[aKey] = attr[aKey]
+                            
+                    # adjust priorityKey if mulitple `name` attributes are used
+                    if bool(self.priorityNameKey):
+                        if (self.priorityNameKey in d) and (d[self.priorityNameKey] != 'none'):
+                            d.pop('name')
+                            d['name'] = d.get(self.priorityNameKey)
+                            d.pop(self.priorityNameKey)
 
-                # provide dataType validation
-                if 'dataType' in d:
-                    if d['dataType'] not in __emx__keys__datatype__:
-                        raise ValueError(
-                            'Error in Convert:\n In entity {}, attribute {} has invalid dataType {}.'
-                            .format(d['entity'], d['name'], d['dataType'])
-                        )
+                    # provide dataType validation
+                    if 'dataType' in d:
+                        if d['dataType'] not in __emx__keys__datatype__:
+                            raise ValueError(
+                                'Error in Convert:\n In entity {}, attribute {} has invalid dataType {}.'
+                                .format(d['entity'], d['name'], d['dataType'])
+                            )
 
-                # apply defaults
-                if data['defaults']:
-                    defaultKeys = list(data['defaults'].keys())
-                    for dKey in defaultKeys:
-                        if dKey not in attrKeys:
-                            d[dKey] = data['defaults'][dKey]
+                    # apply defaults
+                    if data['defaults']:
+                        defaultKeys = list(data['defaults'].keys())
+                        for dKey in defaultKeys:
+                            if dKey not in attrKeys:
+                                d[dKey] = data['defaults'][dKey]
 
-                emx['attributes'].append(d)
-            
+                    emx['attributes'].append(d)
 
             if 'data' in entity:
                 name = data['name'] + '_' + entity['name']
@@ -700,7 +691,6 @@ class Convert:
                 raise ValueError('Path ' + dir + 'does not exist')
             
             writer.writeCsv(dir, includeData)
-    
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # WRITE SCHEMA
@@ -719,7 +709,6 @@ class Convert:
 
         """
         md = markdownWriter(file = path)
-        
         md.heading(level = 1, title = 'Model Schema')
         md.linebreaks(n = 1)
         md.heading(level = 2, title = "Packages")
@@ -730,7 +719,8 @@ class Convert:
         for pkg in self.packages:
             pkgs.append({
                 'Name': pkg.get('name'),
-                'Description': pkg.get('description', '-')
+                'Description': pkg.get('description', '-'),
+                'Parent': pkg.get('parent', '-')
             })
         md.table(data = pkgs)
         
@@ -752,24 +742,39 @@ class Convert:
         md.linebreaks(n = 1)
         md.heading(level = 2, title = 'Attributes')
         for entity in self.entities:
+            
+            # If attributes do not exist, then don't render schema
             entityPkgName = entity['package'] + '_' + entity['name']
-            md.linebreaks(n = 1)
-            md.heading(level = 3, title = f'Entity: {entityPkgName}')
-        
-            if 'description' in entity:
-                md.linebreaks(n = 1)
-                md.text(entity['description'])
-
             entityData = list(filter(lambda d: d['entity'] in entityPkgName, self.attributes))
-            entityAttribs = []
+            if entityData:
+                md.linebreaks(n = 1)
+                md.heading(level = 3, title = f'Entity: {entityPkgName}')
+        
+                if 'description' in entity:
+                    md.linebreaks(n = 1)
+                    md.text(entity['description'])
+                else:
+                    md.linebreaks(n = 1)
 
-            for d in entityData:
-                entityAttribs.append({
-                    'Name': d.get('name', '-'),
-                    'Label': d.get('label', '-'),
-                    'Description': d.get('description', '-'),
-                    'Data Type': d.get('dataType', '-'),
-                    'ID Attribute': d.get('idAttribute', '-')
-                })
-            md.table(entityAttribs)
+                entityAttribs = []
+
+                # compile attribute info for table
+                for d in entityData:
+                    entryAttribs = {
+                        'Name': d.get('name', '-'),
+                        'Label': d.get('label', '-'),
+                        'Description': d.get('description', '-'),
+                        'Data Type': d.get('dataType', '-')
+                    }
+                    
+                    # add indication if an attribute is a primary key                
+                    if d.get('idAttribute', None):
+                        entryAttribs['Name'] = entryAttribs['Name'] + '&#8251;'
+
+                    entityAttribs.append(entryAttribs)
+
+                md.table(entityAttribs)
+        
+        md.linebreaks(n = 1)
+        md.text('Note: The symbol &#8251; denotes attributes that are primary keys')
         md.save()
