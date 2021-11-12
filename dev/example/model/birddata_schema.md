@@ -2,37 +2,56 @@
 
 ## Packages
 
-| Name | Description |
-|:---- |:-----------|
-| data | Parent Package Test (v0.0.9000, 2021-09-20) |
+| Name | Description | Parent |
+|:---- |:-----------|:------|
+| birdData | Reporting Rates of Australian Bird Species (v1.0.0, 2021-11-12) | - |
 
 ## Entities
 
 | Name | Description | Package |
 |:---- |:-----------|:-------|
-| species | Reporting Counts and Rates by Species | data |
-| states | Australian States and Codes | data |
+| template | lookup table attribute template | birdData |
+| wings | reference for wing characteristics | birdData |
+| colors | reference for colors and patterns | birdData |
+| conservationStatus | reference for conservation status | birdData |
+| states | Australian States and Territories | birdData |
+| species | Reporting Counts and Rates by Species | birdData |
 
 ## Attributes
 
-### Entity: data_species
+### Entity: birdData_template
+
+lookup table attribute template
+
+| Name | Label | Description | Data Type |
+|:---- |:-----|:-----------|:---------|
+| value&#8251; | - | - | string |
+| description | - | - | string |
+| codesystem | - | - | string |
+| code | - | - | string |
+| iri | - | - | hyperlink |
+
+### Entity: birdData_states
+
+Australian States and Territories
+
+| Name | Label | Description | Data Type |
+|:---- |:-----|:-----------|:---------|
+| code&#8251; | code | state code | string |
+| category | category | state type (state or territory) | string |
+| name | name | state name | string |
+
+### Entity: birdData_species
 
 Reporting Counts and Rates by Species
 
-| Name | Label | Description | Data Type | ID Attribute |
-|:---- |:-----|:-----------|:---------|:------------|
-| birdID | BirdID | Species Identifier | string | True |
-| commonName | Common Name | Commonly used name for a species | string | False |
-| scientificName | Scientific Name | Scientific name for a species | string | False |
-| count | Count | - | int | False |
-| reportingRate | Reporting Rate | Percent reported | decimal | False |
+| Name | Label | Description | Data Type |
+|:---- |:-----|:-----------|:---------|
+| birdID&#8251; | BirdID | Species Identifier | string |
+| commonName | Common Name | Commonly used name for a species | string |
+| scientificName | Scientific Name | Scientific name for a species | string |
+| count | Count | - | int |
+| reportingRate | Reporting Rate | Percent reported | decimal |
 
-### Entity: data_states
+Note: The symbol &#8251; denotes attributes that are primary keys
 
-Australian States and Codes
-
-| Name | Label | Description | Data Type | ID Attribute |
-|:---- |:-----|:-----------|:---------|:------------|
-| code | - | - | string | True |
-| category | - | - | string | False |
-| name | - | - | string | False |
