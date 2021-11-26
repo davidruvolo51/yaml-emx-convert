@@ -11,13 +11,23 @@ The structure of the yaml file (i.e., property names, syntax, etc.), is nearly i
 - :scroll: Markdown Schema: generate an overview of your model in a markdown file
 - :fire: Build time customization: render the model based on a specific project name (ideal for harmonization projects; i.e., one file multiple models)
 - :package: Templates: or shared package-level EMX files across multiple yaml files.
-- :label: Tagging: support for semantic tagging
+- :label: Tagging: support for semantic tags
 
 ## An introduction to the YAML-EMX format
 
+### What is EMX?
+
+So what is the EMX format? Before we dive into the contents of this repo, I would like to start with a gentle introduction to EMX. EMX is the underlying data structure for [Molgenis databases](https://www.molgenis.org/), which is an open source database platform that allows researchers and bioinformaticians to accelerate scientific collaborations. EMX is the underlying data modeling format for creating a Molgenis database. EMX models are flexible and user-friendly as they can be created in xlsx and csv formats.
+
+_**Why did you build an EMX converter?**_
+
+We wanted to make the process of writing EMX models even more flexible. One of the many exciting features in EMX2 (the next generatation of Molgenis) is support for YAML-EMX models. However, this isn't available for EMX1. This python library was created to give Molgenis users the option to write EMX1 models in a YAML file, and then build them into the Excel or CSV formats.
+
+### Writing EMX in YAML format
+
 You can write your data model using standard Molgenis EMX attribute names, but there are a couple of extra features that may be useful for you. This section will provide an introduction on how to define your data model in the YAML-EMX format and an overview on some of the neat features.
 
-### Defining EMX Packages
+#### Defining EMX Packages
 
 Each yaml file should be viewed as a single package with one or more entities. To define a package, write the YAML mappings using the standard EMX attributes. For example:
 
@@ -42,7 +52,7 @@ Alternatively, you can define a base EMX package and share it across multiple YA
 includes: path/to/base_neuroclinic.yaml
 ```
 
-### Setting attribute level defaults
+#### Setting attribute level defaults
 
 Another feature of this package is the option to set attribute level defaults (e.g., `dataType`, `nillable`, etc.). This may be useful for models that have many entities and that have a lot of attributes. This also eliminates the need to set all of the options for each attribute and the hassle of manually changing options if &mdash; or when &mdash; the structure changes. This features allows you to define attribute defaults once and the converter fills in the gaps.
 
@@ -57,7 +67,7 @@ defaults:
 
 That's it!
 
-### Defining Entities
+#### Defining Entities
 
 Define all entities under the `entities` mapping. Define each entity using the sequence `name` (make sure there's a `-`). All standard EMX names are available, including localization. One of the advantages of the YAML-EMX approach, is that you do not need to write entity names using the `<package>_<entity>` format. This eliminates issues of forgeting to update package names, which fails on import.
 
@@ -72,7 +82,7 @@ entities:
 
 Repeat this process for all entities.
 
-### Defining Entity Attributes
+#### Defining Entity Attributes
 
 Attributes can be defined under the appropriate definition using the mapping `attributes`. To make a new definition (i.e., EMX attribute), using the `- name: [attribute name]` format, and then define the options under. Make sure you take advantage of the `defaults` option!
 
@@ -99,9 +109,9 @@ entities:
 
 **NOTE!**
 
-It is import to note here that if an attribute is a reference class (e.g., xref, mref, etc.), you must write the `<package>_<entity>` format. This is the only spot where you have to follow this format. It was decided to use this approach as you may want to define lookup tables in another file and build that separately. This allows a bit more flexibility in how you structure your model.
+> It is import to note here that if an attribute is a reference class (e.g., xref, mref, etc.), you must write the `<package>_<entity>` format. This is the only spot where you have to follow this format. It was decided to use this approach as you may want to define lookup tables in another file and build that separately. This allows a bit more flexibility in how you structure your model.
 
-### Defining Entity Data
+#### Defining Entity Data
 
 You can also define datasets within your YAML file. It is not recommended to define raw data. This is designed for building lookup tables.
 
@@ -150,36 +160,109 @@ entities:
 
 ## Getting Started
 
-### Usage
+To get started, the following items are required.
 
-Define your data model in yaml file as outlined in the previous section and import into your script. Specify the path to the yaml file when creating a new instance.
+- A Molgenis instance: Checkout the [Try Out Molgenis Guide](https://molgenis.gitbook.io/molgenis/readme/guide-try-out-molgenis) for more information.
+- Install the yaml to emx converter: `pip install yamlemxconvert`
+- A blank yaml file
+- A blank python script
+
+Define your data model in yaml file as outlined in the previous section.
+
+In the python file, import the `Convert` class and specify the files that you would like to build.
 
 ```python
 from yamlemxconvert.convert import Convert
-
-c = Convert(files = ['path/to/my/file.yml', 'path/to/my/another_file.yml'])
+emx = Convert(files = ['path/to/my/model.yaml'])
 ```
 
-Use the method `convert` to compile the yaml into EMX format. By default, if `version` and `date` are defined at the package level, this information will be appended to the package description or set as the description (if it wasn't provided). Use the argument `includePkgMeta` to disable this behavior.
+All files will be rendered into the same Molgenis package (i.e., database). If you would like to have a subpackage, create a second YAML file and specify it in the `files` argument. This approach is useful if your database has many lookup tables. Rather than overcrowding the main table list (i.e., the list of tables that the users will interact with), it's best to store these in a subpackage.
 
 ```python
-c.convert()  # default
-c.convert(includePkgMeta = False)  # to ignore version and date
+emx = Convert(files = ['path/to/my/model.yaml', 'path/to/my/model_lookups.yaml'])
 ```
 
-Use the method `write` to save the model as xlsx or csv format. There are a few options to control this process. These are defined in the list below.
-
-- format: enter 'csv' or 'xlsx'
-- outDir: the output directory (default is '.' or the current directory)
-- includeData: if True (default), all datasets defined in the YAML will be written to file.
+Next, convert your model.
 
 ```python
-c.write('xlsx', outDir = 'model/')
-c.write('csv', outDir = 'model/')
+emx.convert()  # default
 ```
 
-Lastly, you can write the schema to markdown using `write_md`.
+The `convert` method will perform some *light* validation of your model. It will look for invalid data types and throw errors is required attributes are missing.
+
+### Convert options: Model metadata
+
+By default, if `version` and `date` are defined at the package level, this information will be appended to the package description or set as the description (if it wasn't provided to begin with). Use the argument `includePkgMeta` to disable this behavior.
 
 ```python
-c.write_schema(path = 'path/to/save/my/model_schema.md')
+emx.convert(includePkgMeta = False)  # to ignore version and date
 ```
+
+### Convert options: defining multiple EMX models in one YAML file
+
+Another cool feature of the `yamlemxconvert` package, is the ability to define a single model that can be *built* for multiple projects. This is useful for harmonization projects or if you would like to have a single model that can be use in more than one project that have different name preferences (ideally these projects should be using a harmonized model, but that's a different story). This can be done by appending the project name to the EMX attribute `name`.
+
+To demonstrate this, let's take the neurology clinic registry example used that was used in the previous section.
+
+```yaml
+name: neuroclinic
+label: Neurology Clinic Registry
+description: Data about patients and diagnostic imaging performed
+version: 1.2.4
+date: 2021-09-01
+
+entities:
+  - name: patients
+    label: Patients
+    description: Information about the patient
+    attributes:
+      - name: patientID
+        idAttribute: true
+        dataType: string
+        nillable: false
+      - name: age
+        name-projectA: currentAge
+        name-projectB: ageOfPatient
+        description: Years of age
+        dataType: decimal
+      - name: group
+        name-projectA: groupAllocation
+        name-projectB: groupAssignment
+        description: group assignment
+        dataType: xref
+        refEntity: neuroclinic_groups
+```
+
+In this example, we've created an additional `name` attributes for age and group and specified the preferred name for each project. At build time, we can specify which project we are building the model for (`projectA` or `projectB`) via the `priorityNameKey` argument.
+
+```python
+emx.convert(priorityNameKey = 'name-projectA')
+```
+
+The built model consists of the attributes specific to projectA.
+
+### Saving your model
+
+Once the model has been built, use the method `write` to save the model as an xlsx or csv file. There are a few options to control this process.
+
+- `format`: enter 'csv' or 'xlsx'
+- `outDir`: the output directory (default is '.' or the current directory)
+- `includeData`: if True (default), all datasets defined in the YAML will be written to file.
+
+```python
+emx.write(format = 'xlsx', outDir = 'public/')
+emx.write(format = 'csv', outDir = 'public/')
+emx.write(format = 'xlsx', outDir = 'public/', includeData = False)
+```
+
+In addition, you can generate a markdown schema of your model. The schema provides an overview of your model that can be shared with collaborators. The method `write_schema` takes one argument `path`, which is used to specify the output location of the markdown file.
+
+```python
+emx.write_schema(path = 'public/model_schema.md')
+```
+
+## Contributing
+
+Any suggestions and feedback are welcome! Feel free to create a new issue.
+
+If you would like to contribute to the code base, you will need to python >=3.6 installed and the following python libraries: `PyYaml` and `pandas`. When you have finished implementing new features or fixes, test it with a model. You can use one of the example models provided in `dev/example/` or you can create a new one.
