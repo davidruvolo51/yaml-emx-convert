@@ -104,4 +104,11 @@ checkEmxStructure(num_pkgs=1, num_entities=2)
 # checkPriorityNameKey(entity = 'birdData_states' , keysToCheck = ['name-projA', 'name-projB'])
 # checkPriorityNameKey(entity = 'birdData_species' , keysToCheck = ['name-species'])
 
-        
+#//////////////////////////////////////////////////////////////////////////////
+
+# EMX2 Tests
+
+c = Convert(files=['dev/example/birddata.yaml'])
+
+
+    

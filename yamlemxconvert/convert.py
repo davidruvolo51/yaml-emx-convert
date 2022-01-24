@@ -79,15 +79,26 @@ __emx__keys__tags__ = [
 ]
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# READ THE CONTENTS OF A YAML FILE
-# Safely Load a .yml file
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+__emx__to__emx2__ = {
+    # 'entity': 'tableName', # processed in convert2 method
+    'extends': 'tableExtends', 
+    'name': 'name', 
+    'dataType': 'columnType', 
+    'idAttribute': 'key', 
+    'nillable': 'required', 
+    'refEntity': 'refSchema', 
+    'refEntity': 'refTable', 
+    # '': 'refLink', # no matching molgenis/molgenis type
+    # '': 'refBack', # no matching molgenis/molgenis type
+    'validationExpression': 'validation', 
+    'tags': 'semantics',
+    'description': 'description'
+}
+
+
 def loadYaml(file: str = None):
-    """Load YAML File
-    
+    """Load YAML File    
     Read the contents for a YAML file
-    
     Attributes:
         file (str): a file path 
     """
@@ -98,8 +109,6 @@ def loadYaml(file: str = None):
             print("Unable to read yaml:\n" + repr(err))
         stream.close()
     return contents
-
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -405,14 +414,12 @@ class emxWriter:
 class Convert:
     def __init__(self, files: list = []):
         """Convert
-        
         Create a new instance of the YAML to EMX converter.
-        
+
         Attributes:
             files (list): a list of files to convert
-        
+
         Examples:
-        
             ```
             c = Convert(files = ['path/to/my_model.yml', 'path/to/my_model_1.yml'])
             ```
@@ -440,7 +447,6 @@ class Convert:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __emx__extract__package__(self, data, includePkgMeta: bool = True):
         """Extract EMX Package Metadata
-        
         Extract known EMX package attributes
         
         Attributes:
@@ -481,9 +487,10 @@ class Convert:
     def __emx__extract__tags__(self, tags):
         """Extract known EMX tags
         
-        @param tags (list) : if present, a list of dictionaries containing
-            tag definitions. Properties must be defined under the
-            `tagDefinitions` tag.
+        Attributes:
+            tags (list) : if present, a list of dictionaries containing
+                tag definitions. Properties must be defined under the
+                `tagDefinitions` tag.
         """
         for tag in tags:
             keys = list(tag.keys())
@@ -586,7 +593,6 @@ class Convert:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def convert(self, includePkgMeta: bool = True, priorityNameKey: str = None):
         """Convert Model
-        
         Convert yaml file into EMX structure
         
         Attributes:
@@ -778,3 +784,69 @@ class Convert:
         md.linebreaks(n = 1)
         md.text('Note: The symbol &#8251; denotes attributes that are primary keys')
         md.save()
+
+
+def convert2(files):
+    for file in files:
+        print('Processing {}'.format(file))
+        
+        if 'entites' not in yaml:
+            raise KeyError('Error: EMX entities are not defined in YAML')
+            
+        for entity in yaml['entities']:
+            attribs = []
+            if entity.get('attributes'):
+                for row in entity.get('attributes'):
+                    tmp = {'entity': entity.get('name')}
+                    for elem in __emx__to__emx2__:
+                        tmp[__emx__to__emx2__[elem]] = row.get(elem, None)
+                    attribs.append(tmp)
+
+yaml = loadYaml('dev/example/birddata.yaml')
+
+def recodeAsEm2ColumnType(value):
+    newDataTypes = {
+        # 'bool',
+        'categorical': 'ref',
+        'categorical_mref': 'ref_array',
+        # 'compound',
+        # 'date',
+        # 'datetime',
+        # 'decimal',
+        'email': 'string',
+        # 'enum',
+        # 'file',
+        'hyperlink': 'string',
+        # 'int',
+        'long': 'int',
+        'mref': 'ref_array',
+        'one_to_many': 'ref_array',
+        # 'string',
+        'text': 'string',
+        'xref': 'ref'
+    }
+    
+    if value in newDataTypes:
+        return newDataTypes[value]
+    
+    return value
+
+def convert2():
+    for entity in yaml['entities']:    
+        molgenis = []
+        if entity.get('attributes'):
+            for row in entity.get('attributes'):
+                tmp = {'entity': entity.get('name')}
+                for key in row.keys():
+                    if key in __emx__to__emx2__:
+                        value = row.get(key)
+                        if yaml.get('defaults'):
+                            if key in yaml.get('defaults'):
+                                value = yaml.get('defaults', {}).get(key)
+                        if key == 'dataType':
+                            value = recodeAsEm2ColumnType(value)
+                        if key == 'idAttribute':
+                            print(key, value)
+                            value = int(value == 'True')
+                        tmp[__emx__to__emx2__[key]] = value
+                molgenis.append(tmp)
