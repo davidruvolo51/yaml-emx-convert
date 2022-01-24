@@ -266,3 +266,11 @@ emx.write_schema(path = 'public/model_schema.md')
 Any suggestions and feedback are welcome! Feel free to create a new issue.
 
 If you would like to contribute to the code base, you will need to python >=3.6 installed and the following python libraries: `PyYaml` and `pandas`. When you have finished implementing new features or fixes, test it with a model. You can use one of the example models provided in `dev/example/` or you can create a new one.
+
+If you would like to work on this package and submit your changes, use the following build steps.
+
+1. Update version numbers: run `yarn bumpversion:*` (use major, minor, patch)
+2. Run `yarn build`
+3. Run `yarn check`
+4. Run a test deploy: `yarn deploy:test`
+5. Actually deploy: `yarn deploy:prod`
