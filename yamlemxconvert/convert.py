@@ -1,5 +1,6 @@
 import os
-import yaml
+# import yaml
+from yamlemxconvert.utils import loadYaml
 import pandas as pd
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,36 +80,19 @@ __emx__keys__tags__ = [
 ]
 
 
-__emx__to__emx2__ = {
-    # 'entity': 'tableName', # processed in convert2 method
-    'extends': 'tableExtends', 
-    'name': 'name', 
-    'dataType': 'columnType', 
-    'idAttribute': 'key', 
-    'nillable': 'required', 
-    'refEntity': 'refSchema', 
-    'refEntity': 'refTable', 
-    # '': 'refLink', # no matching molgenis/molgenis type
-    # '': 'refBack', # no matching molgenis/molgenis type
-    'validationExpression': 'validation', 
-    'tags': 'semantics',
-    'description': 'description'
-}
-
-
-def loadYaml(file: str = None):
-    """Load YAML File    
-    Read the contents for a YAML file
-    Attributes:
-        file (str): a file path 
-    """
-    with open(file, 'r') as stream:
-        try:
-            contents = yaml.safe_load(stream)
-        except yaml.YAMLError as err:
-            print("Unable to read yaml:\n" + repr(err))
-        stream.close()
-    return contents
+# def loadYaml(file: str = None):
+#     """Load YAML File    
+#     Read the contents for a YAML file
+#     Attributes:
+#         file (str): a file path 
+#     """
+#     with open(file, 'r') as stream:
+#         try:
+#             contents = yaml.safe_load(stream)
+#         except yaml.YAMLError as err:
+#             print("Unable to read yaml:\n" + repr(err))
+#         stream.close()
+#     return contents
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -784,69 +768,3 @@ class Convert:
         md.linebreaks(n = 1)
         md.text('Note: The symbol &#8251; denotes attributes that are primary keys')
         md.save()
-
-
-def convert2(files):
-    for file in files:
-        print('Processing {}'.format(file))
-        
-        if 'entites' not in yaml:
-            raise KeyError('Error: EMX entities are not defined in YAML')
-            
-        for entity in yaml['entities']:
-            attribs = []
-            if entity.get('attributes'):
-                for row in entity.get('attributes'):
-                    tmp = {'entity': entity.get('name')}
-                    for elem in __emx__to__emx2__:
-                        tmp[__emx__to__emx2__[elem]] = row.get(elem, None)
-                    attribs.append(tmp)
-
-yaml = loadYaml('dev/example/birddata.yaml')
-
-def recodeAsEm2ColumnType(value):
-    newDataTypes = {
-        # 'bool',
-        'categorical': 'ref',
-        'categorical_mref': 'ref_array',
-        # 'compound',
-        # 'date',
-        # 'datetime',
-        # 'decimal',
-        'email': 'string',
-        # 'enum',
-        # 'file',
-        'hyperlink': 'string',
-        # 'int',
-        'long': 'int',
-        'mref': 'ref_array',
-        'one_to_many': 'ref_array',
-        # 'string',
-        'text': 'string',
-        'xref': 'ref'
-    }
-    
-    if value in newDataTypes:
-        return newDataTypes[value]
-    
-    return value
-
-def convert2():
-    for entity in yaml['entities']:    
-        molgenis = []
-        if entity.get('attributes'):
-            for row in entity.get('attributes'):
-                tmp = {'entity': entity.get('name')}
-                for key in row.keys():
-                    if key in __emx__to__emx2__:
-                        value = row.get(key)
-                        if yaml.get('defaults'):
-                            if key in yaml.get('defaults'):
-                                value = yaml.get('defaults', {}).get(key)
-                        if key == 'dataType':
-                            value = recodeAsEm2ColumnType(value)
-                        if key == 'idAttribute':
-                            print(key, value)
-                            value = int(value == 'True')
-                        tmp[__emx__to__emx2__[key]] = value
-                molgenis.append(tmp)
