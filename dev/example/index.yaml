@@ -1,0 +1,113 @@
+#//////////////////////////////////////////////////////////////////////////////
+# NAME: umdm_emx1.yaml
+# AUTHOR: david ruvolo
+# CREATED: 2021-11-09
+# MODIFIED: 2021-12-07
+# PURPOSE: Unified Rare Disease Data Model lookups for EMX1
+# STATUS: maturing
+# COMMENTS: this is reduced version to testing purposes
+#//////////////////////////////////////////////////////////////////////////////
+
+# define package
+name: umdm_lookups
+label: Lookups
+description: Lookup tables for the Unified Molgenis Data Model (UMDM)
+parent: umdm
+tags: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
+version: 1.0.0
+date: 2021-12-07
+
+
+# set attribute level defaults
+defaults:
+  idAttribute: false
+  dataType: string
+  nillable: true
+  lookupAttribute: false
+  labelAttribute: false
+  visible: true
+  
+# define entities: use a template or create a new one. Any user managed lookup
+# should be defined in main file (`umdm_emx1.yaml`). 
+entities:
+
+  # @name attributeTemplateDefault
+  # @description attribute template for tables where `value` is the primary key
+  - name: attributeTemplateDefault
+    abstract: true
+    description: attribute template where value is the primary key
+    tags: http://purl.obolibrary.org/obo/NCIT_C45677
+    attributes:
+      - name: value
+        idAttribute: true
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+        tags: http://purl.obolibrary.org/obo/NCIT_C49100
+        description: The information contained in a data field. It may represent a numeric quantity, a textual characterization, a date or time measurement, or some other state, depending on the nature of the attribute.
+        
+      - name: description
+        dataType: text
+        tags: http://purl.obolibrary.org/obo/NCIT_C25365
+        description: A written or verbal account, representation, statement, or explanation of something
+      
+      - name: codesystem
+        tags: http://purl.obolibrary.org/obo/NCIT_C70895
+        description: A systematized collection of concepts that define corresponding codes.
+      
+      - name: code
+        tags: http://purl.obolibrary.org/obo/NCIT_C25162
+        description: A symbol or combination of symbols which is assigned to the members of a collection.
+      
+      - name: iri
+        dataType: hyperlink
+        tags: http://purl.obolibrary.org/obo/NCIT_C165071
+        description: A unique symbol that establishes identity of the resource.
+  
+  # @name attributeTemplateCode
+  # @description attribute template for tables where `code` is the primary key
+  - name: attributeTemplateCode
+    abstract: true
+    description: attribute template where code is the primary key
+    tags: http://purl.obolibrary.org/obo/NCIT_C45677
+    attributes:
+      - name: value
+        lookupAttribute: true
+        labelAttribute: true
+        tags: http://purl.obolibrary.org/obo/NCIT_C49100
+        description: The information contained in a data field. It may represent a numeric quantity, a textual characterization, a date or time measurement, or some other state, depending on the nature of the attribute.
+        
+      - name: description
+        dataType: text
+        tags: http://purl.obolibrary.org/obo/NCIT_C25365
+        description: A written or verbal account, representation, statement, or explanation of something
+      
+      - name: codesystem
+        tags: http://purl.obolibrary.org/obo/NCIT_C70895
+        description: A systematized collection of concepts that define corresponding codes.
+      
+      - name: code
+        idAttribute: true
+        nillable: false
+        tags: http://purl.obolibrary.org/obo/NCIT_C25162
+        description: A symbol or combination of symbols which is assigned to the members of a collection.
+      
+      - name: iri
+        dataType: hyperlink
+        tags: http://purl.obolibrary.org/obo/NCIT_C165071
+        description: A unique symbol that establishes identity of the resource.
+  
+  - name: anatomicalSource
+    description: Anatomical Source (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C103264, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    extends: umdm_lookups_attributeTemplateDefault
+  
+  - name: ancestry
+    description: Ancestry (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C176763, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    extends: umdm_lookups_attributeTemplateDefault
+  
+  - name: biospecimenType
+    description: Biospecimen Type (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C70713, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    extends: umdm_lookups_attributeTemplateDefault
