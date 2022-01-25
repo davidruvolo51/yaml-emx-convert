@@ -108,7 +108,11 @@ checkEmxStructure(num_pkgs=1, num_entities=2)
 
 # EMX2 Tests
 
-c = Convert(files=['dev/example/birddata.yaml'])
+from yamlemxconvert.convert2 import Convert2
+c = Convert2(file = 'dev/example/index.yaml')
+c.convert(includeData=False)
 
+
+c.write(name='birddata_emx2', outDir = 'dev/example/model/')
 
     
