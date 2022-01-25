@@ -1,7 +1,7 @@
-import os
-# import yaml
 from yamlemxconvert.utils import loadYaml
+from os import path, getcwd, remove
 import pandas as pd
+# import yaml
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EMX Attributes
@@ -671,13 +671,13 @@ class Convert:
         
         if format == 'xlsx':
             file = outDir + '/' + name + '.' + str(format)
-            if os.path.exists(file):
-                os.remove(file)
+            if path.exists(file):
+                remove(file)
             writer.writeXlsx(file, includeData)
         
         if format == 'csv':
-            dir = os.getcwd() if outDir == '.' else os.path.abspath(outDir)
-            if not os.path.exists(dir):
+            dir = getcwd() if outDir == '.' else path.abspath(outDir)
+            if not path.exists(dir):
                 raise ValueError('Path ' + dir + 'does not exist')
             
             writer.writeCsv(dir, includeData)
