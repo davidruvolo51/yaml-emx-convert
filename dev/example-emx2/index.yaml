@@ -9,8 +9,8 @@
 #//////////////////////////////////////////////////////////////////////////////
 
 # define package
-name: umdm_lookups
-label: Lookups
+name: umdm
+label: UMDM
 description: Lookup tables for the Unified Molgenis Data Model (UMDM)
 parent: umdm
 tags: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
@@ -111,3 +111,47 @@ entities:
     description: Biospecimen Type (FAIR Genomes, v1.1)
     tags: http://purl.obolibrary.org/obo/NCIT_C70713, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
     extends: umdm_lookups_attributeTemplateDefault
+    
+  - name: participants
+    description: Persons who are observed, analyzed, examined, investigated, experimented upon, or/and treated in the course of a particular study
+    tags: http://purl.obolibrary.org/obo/ExO_0000127, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    attributes:
+      - name: subjectID
+        dataType: string
+        idAttribute: true
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+        description: An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored.
+        tags: http://purl.obolibrary.org/obo/NCIT_C142495
+        
+      - name: dateOfBirth
+        dataType: date
+        description: The calendar date on which a person was born.
+        tags: http://purl.obolibrary.org/obo/NCIT_C68615
+
+      - name: yearOfBirth
+        dataType: int
+        description: The year in which a person was born.
+        tags: http://purl.obolibrary.org/obo/NCIT_C83164
+
+      - name: dateOfDeath
+        dataType: date
+        description: The calendar date of subject's death.
+        tags: http://purl.obolibrary.org/obo/NCIT_C70810
+        
+      - name: yearOfDeath
+        dataType: int
+        description: The year in which an individual derived.
+        tags: http://purl.obolibrary.org/obo/NCIT_C156426
+
+      - name: ageAtDeath
+        dataType: decimal
+        description: The age at which death occurred.
+        tags: http://purl.obolibrary.org/obo/NCIT_C135383
+        
+      - name: ancestry
+        dataType: xref
+        refEntity: umdm_lookups_ancestry
+        description: Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.
+        tags: http://purl.obolibrary.org/obo/NCIT_C176763
