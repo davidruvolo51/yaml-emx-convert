@@ -21,14 +21,15 @@ __emx__attribs__to__emx2__ = {
 }
 
 
+# define mappings for all dataTypes (can change later)
 __emx__datatypes__to__emx2__ = {
-    # 'bool' : 'bool',
+    'bool' : 'bool',
     'categorical': 'ref',
     'categorical_mref': 'ref_array',
     'compound': 'headings', # ???
-    # 'date' : 'date',
-    # 'datetime' : 'datetime',
-    # 'decimal' : 'decimal',
+    'date' : 'date',
+    'datetime' : 'datetime',
+    'decimal' : 'decimal',
     'email': 'string', # temporary mapping
     'enum': None, # temporary mapping
     'file' : 'file',
@@ -37,8 +38,8 @@ __emx__datatypes__to__emx2__ = {
     'long': 'int',  # use `int` for now
     'mref': 'ref_array',
     'one_to_many': 'ref_array',
-    # 'string': 'string',
-    # 'text' : 'text',
+    'string': 'string',
+    'text' : 'text',
     'xref': 'ref'
 }
 
@@ -177,14 +178,15 @@ class Convert2():
                     )
                     
                     # recode `dataType` to `columnType`
-                    if attrData.get('columnType') in __emx__attribs__to__emx2__:
-                        attrData['columnType'] = __emx__attribs__to__emx2__[
-                            attrData['columnType']
-                        ]
-                    elif defaults.get('dataType'):
-                        attrData['columnType'] = defaults.get('dataType')  
-                    else:
+                    if (not attrData.get('columnType')) and defaults.get('dataType'):
+                        attrData['columnType'] = defaults.get('dataType')
+                    
+                    if (not attrData.get('columnType')) and (not defaults.get('dataType')):
                         attrData['columnType'] = 'string'
+                        
+                    attrData['columnType'] = __emx__datatypes__to__emx2__[
+                        attrData['columnType']
+                    ]
                         
                     # recode `idAttribute` to `key`
                     if attrData.get('key'):
