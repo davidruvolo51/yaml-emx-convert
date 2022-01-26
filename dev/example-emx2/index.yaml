@@ -64,57 +64,24 @@ entities:
         tags: http://purl.obolibrary.org/obo/NCIT_C165071
         description: A unique symbol that establishes identity of the resource.
   
-  # @name attributeTemplateCode
-  # @description attribute template for tables where `code` is the primary key
-  - name: attributeTemplateCode
-    abstract: true
-    description: attribute template where code is the primary key
-    tags: http://purl.obolibrary.org/obo/NCIT_C45677
-    attributes:
-      - name: value
-        lookupAttribute: true
-        labelAttribute: true
-        tags: http://purl.obolibrary.org/obo/NCIT_C49100
-        description: The information contained in a data field. It may represent a numeric quantity, a textual characterization, a date or time measurement, or some other state, depending on the nature of the attribute.
-        
-      - name: description
-        dataType: text
-        tags: http://purl.obolibrary.org/obo/NCIT_C25365
-        description: A written or verbal account, representation, statement, or explanation of something
-      
-      - name: codesystem
-        tags: http://purl.obolibrary.org/obo/NCIT_C70895
-        description: A systematized collection of concepts that define corresponding codes.
-      
-      - name: code
-        idAttribute: true
-        nillable: false
-        tags: http://purl.obolibrary.org/obo/NCIT_C25162
-        description: A symbol or combination of symbols which is assigned to the members of a collection.
-      
-      - name: iri
-        dataType: hyperlink
-        tags: http://purl.obolibrary.org/obo/NCIT_C165071
-        description: A unique symbol that establishes identity of the resource.
-  
   - name: anatomicalSource
     description: Anatomical Source (FAIR Genomes, v1.1)
-    tags: http://purl.obolibrary.org/obo/NCIT_C103264, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    tags: http://purl.obolibrary.org/obo/NCIT_C103264
     extends: umdm_lookups_attributeTemplateDefault
   
   - name: ancestry
     description: Ancestry (FAIR Genomes, v1.1)
-    tags: http://purl.obolibrary.org/obo/NCIT_C176763, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    tags: http://purl.obolibrary.org/obo/NCIT_C176763
     extends: umdm_lookups_attributeTemplateDefault
   
   - name: biospecimenType
     description: Biospecimen Type (FAIR Genomes, v1.1)
-    tags: http://purl.obolibrary.org/obo/NCIT_C70713, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    tags: http://purl.obolibrary.org/obo/NCIT_C70713
     extends: umdm_lookups_attributeTemplateDefault
     
   - name: participants
     description: Persons who are observed, analyzed, examined, investigated, experimented upon, or/and treated in the course of a particular study
-    tags: http://purl.obolibrary.org/obo/ExO_0000127, https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    tags: http://purl.obolibrary.org/obo/ExO_0000127
     attributes:
       - name: subjectID
         dataType: string
@@ -155,3 +122,38 @@ entities:
         refEntity: umdm_lookups_ancestry
         description: Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.
         tags: http://purl.obolibrary.org/obo/NCIT_C176763
+      
+      - name: recordMetadata
+        dataType: compound
+        description: metadata is data that provides information about data.
+        tags: http://semanticscience.org/resource/SIO_001330
+
+      - name: comments
+        dataType: text
+        description: A written explanation, observation or criticism added to textual material.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C25393
+      
+      - name: dateRecordCreated
+        nillable: false
+        dataType: datetime
+        description: The date on which the activity or entity is created.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C164483
+
+      - name: recordCreatedBy
+        nillable: false
+        description: Indicates the person or authoritative body who brought the item into existence.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C42628
+
+      - name: dateRecordUpdated
+        dataType: datetime
+        description: The date (and time) on which report was updated after it had been submitted.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C93629
+
+      - name: wasUpdatedBy
+        description: An entity which is updated by another entity or an agent.
+        partOfAttribute: recordMetadata
+        tags: https://w3id.org/reproduceme#wasUpdatedBy
