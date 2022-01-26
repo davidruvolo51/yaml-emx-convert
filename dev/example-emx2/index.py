@@ -20,9 +20,9 @@
 
 # from emxconvert.convert2 import Convert2
 from yamlemxconvert.convert2 import Convert2
-
-c = Convert2(file = 'dev/example-emx1/index.yaml')
+c = Convert2(file = 'dev/example-emx2/index.yaml')
 c.convert(includeData=False)
 
+c.model['molgenis']
 
-c.write(name='birddata_emx2', outDir = 'dev/example/model/')
+c.write(name='yaml_emx2', outDir = 'dev/example-emx2/')
