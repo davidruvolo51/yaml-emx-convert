@@ -1,9 +1,10 @@
+from multiprocessing.sharedctypes import Value
 from yamlemxconvert.convert import loadYaml
 from os import path, remove
 import pandas as pd
 
 
-__emx__to__emx2__ = {
+__emx__attribs__to__emx2__ = {
     # 'entity': 'tableName', # processed in convert2 method
     'extends': 'tableExtends', 
     'name': 'name', 
@@ -40,7 +41,6 @@ __emx__datatypes__to__emx2__ = {
     # 'text' : 'text',
     'xref': 'ref'
 }
-
 
 class emxWriter2:
     def ___xlsx__headers__(self, wb, columns, name):
@@ -91,20 +91,12 @@ class Convert2():
         
         Examples:
             ```
-            c = Convert2(files=['path/to/my/model'])
+            c = Convert2(files='path/to/my/model.yaml')
             ```
         """
-        self.__init__fields__()
         self.file = file
         self.filename = self.file.split('/')[-1]
-        
         self._yaml = loadYaml(file = self.file)
-
-        
-    def __init__fields__(self):
-        self.model = {}
-        self.filename = None
-
     
     def __data__to__emx2__(self, data: dict = {}, tablename: str = None):
         return {
@@ -120,33 +112,60 @@ class Convert2():
             'semantics': data.get('tags'),
             'description': data.get('description')
         }
+        
+    def __refEntity__to__refSchema__(self, pkgName, value, flattenNestedPkgs):
+        schema = value.split('_')[:-1]
+        
+        if flattenNestedPkgs:
+            schema = schema[:1]
+        
+        try:
+            schema.remove(pkgName)
+        except ValueError:
+            pass
+        
+        return schema if schema else None
     
-    def convert(self, pkgName: str = None, includeData: bool = True):
+            
+    def __refEntity__to__refTable__(self, value):
+        return value.split('_')[-1]
+
+    
+    def convert(self, includeData: bool = True, flattenNestedPkgs: bool = True):
         """Convert Model
         Convert molgenis/molgenis EMX-YAMl model format into EMX2
         
         Attributes:
-            pkgName (str) : Name of the EMX package
             includeData (bool): If True (default), any datasets defined in the yaml
                 will be written to file
+            flattenNestedPkgs (bool) : If True (default), all nested EMX packages
+                will be flattened so that the `refEntity` can be transformed into
+                `refSchema`
             
         """
         print(f'Processing model: {self.filename}')
-        self.__init__fields__()
+        self.model = {}
 
         if 'entities' not in self._yaml:
             raise KeyError('EMX entities are not defined in YAML')
             
         defaults = self._yaml.get('defaults')
+        pkgName = self._yaml.get('name')
         molgenis = []
 
         for entity in self._yaml['entities']:            
             entityName = entity.get('name')
-            
             entityMeta = self.__data__to__emx2__(
                 data = entity,
                 tablename = entityName
             )
+            
+            # recode `tableExtends`
+            if entityMeta.get('tableExtends'):
+                entityMeta['tableExtends'] = self.__refEntity__to__refTable__(
+                    value = entityMeta.get('tableExtends')
+                )
+            
             molgenis.append(entityMeta)
 
             # build data for `molgenis` worksheet
@@ -158,12 +177,12 @@ class Convert2():
                     )
                     
                     # recode `dataType` to `columnType`
-                    if attrData.get('columnType'):
-                        if attrData.get('columnType') in __emx__to__emx2__:
-                            attrData['columnType'] = __emx__to__emx2__[attrData['columnType']]
-                    elif defaults:
-                        if defaults.get('dataType'):
-                            attrData['columnType'] = defaults.get('dataType')  
+                    if attrData.get('columnType') in __emx__attribs__to__emx2__:
+                        attrData['columnType'] = __emx__attribs__to__emx2__[
+                            attrData['columnType']
+                        ]
+                    elif defaults.get('dataType'):
+                        attrData['columnType'] = defaults.get('dataType')  
                     else:
                         attrData['columnType'] = 'string'
                         
@@ -171,11 +190,19 @@ class Convert2():
                     if attrData.get('key'):
                         attrData['key'] = int(attrData['key'] == True)
                         
-                    # fix `refSchema` and `refTable`
+                    # recode `refEntity` as `refSchema`
                     if attrData.get('refSchema'):
-                        attrData['refSchema'] = attrData['refSchema'].split('_')[:-1]
-                    if attrData.get('refSchema'):
-                        attrData['refTable'] = attrData['refSchema'].split('_')[-1]
+                        attrData['refSchema'] = self.__refEntity__to__refSchema__(
+                            pkgName = pkgName,
+                            value = attrData.get('refSchema'),
+                            flattenNestedPkgs = flattenNestedPkgs
+                        )
+                    
+                    # recode `refEntity` as `refTable`
+                    if attrData.get('refTable'):
+                        attrData['refTable'] = self.__refEntity__to__refTable__(
+                            value = attrData.get('refTable')
+                        )
                     
                     molgenis.append(attrData)
 
