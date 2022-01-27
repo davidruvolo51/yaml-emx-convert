@@ -12,6 +12,7 @@ The structure of the yaml file (i.e., property names, syntax, etc.), is nearly i
 - :fire: Build time customization: render the model based on a specific project name (ideal for harmonization projects; i.e., one file multiple models)
 - :package: Templates: or shared package-level EMX files across multiple yaml files.
 - :label: Tagging: support for semantic tags
+- :partying_face: EMX2 Support!!!
 
 ## An introduction to the YAML-EMX format
 
@@ -261,6 +262,32 @@ In addition, you can generate a markdown schema of your model. The schema provid
 emx.write_schema(path = 'public/model_schema.md')
 ```
 
+### Converting to EMX2
+
+The `yamlemxconvert` package includes basic support for converting your YAML-EMX model into EMX2. The process is, for the most part, identical to the YAML-EMX method. To get started, import the `Convert2` class.
+
+```python
+from yamlemxconvert.convert import Convert2
+```
+
+Create a new instance of your class and define the path to the YAML file. The major change from the previous version is that only one model can be rendered at a time. (This is most likely a temporary limitation.)
+
+```python
+emx2 = Convert2(file='path/to/my/model.yaml')
+```
+
+Convert the model using the `convert` method.  Like the EMX1 convert method, you can choose to ignore any datasets defined in the YAML file using the argument `ignoreData` (default: `False`). A new feature is the ability to decide if you would like to flatten nested EMX packages. In EMX1, you may have a package within a package, but nested schemas aren't allowed in EMX2. You can either flatten the schemas or separate create a new schema as a shared resource. By default, this option is set to `True`.
+
+```python
+emx2.convert()
+```
+
+Lastly, write the model. At this time, `write` supports to `xslx` format. Support for other formats is in progress.
+
+```python
+emx2.write(name = 'mymodel', outDir = 'path/to/dir/')
+```
+
 ## Contributing
 
 Any suggestions and feedback are welcome! Feel free to create a new issue.
@@ -290,7 +317,7 @@ yarn py:build
 yarn py:check
 ```
 
-You may also want to install `emxconvert` locally before deployment and test it locally to make sure everything works.
+You may also want to install `yamlemxconvert` locally before deployment and test it locally to make sure everything works.
 
 ```shell
 yarn py:install
@@ -298,7 +325,7 @@ yarn py:install
 
 ### 3. Deploy
 
-Deploy `emxconvert` to [Test.PyPi](https://test.pypi.org/) and make sure everything runs as expected.
+Deploy `yamlemxconvert` to [Test.PyPi](https://test.pypi.org/) and make sure everything runs as expected.
 
 ```shell
 yarn deploy:test
