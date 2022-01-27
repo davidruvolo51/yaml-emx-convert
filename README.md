@@ -270,13 +270,15 @@ The `yamlemxconvert` package includes basic support for converting your YAML-EMX
 from yamlemxconvert.convert import Convert2
 ```
 
-Create a new instance of your class and define the path to the YAML file. The major change from the previous version is that only one model can be rendered at a time. (This is most likely a temporary limitation.)
+Create a new instance and enter the path to the YAML file. The major change from the EMX1 `Convert` method is that only one model can be rendered at a time. (This is most likely a temporary limitation.)
 
 ```python
 emx2 = Convert2(file='path/to/my/model.yaml')
 ```
 
-Convert the model using the `convert` method.  Like the EMX1 convert method, you can choose to ignore any datasets defined in the YAML file using the argument `ignoreData` (default: `False`). A new feature is the ability to decide if you would like to flatten nested EMX packages. In EMX1, you may have a package within a package, but nested schemas aren't allowed in EMX2. You can either flatten the schemas or separate create a new schema as a shared resource. By default, this option is set to `True`.
+Convert the model using the `convert` method.  Like the EMX1 convert method you can choose to ignore any datasets defined in the YAML file using the argument `ignoreData` (default: `False`).
+
+A new feature is the ability to decide if you would like to flatten nested EMX packages. In EMX1, you may have a package within a package, but nested schemas aren't allowed in EMX2. You can either flatten the schemas or separate create a new schema as a shared resource. By default, this option is set to `True`.
 
 ```python
 emx2.convert()
