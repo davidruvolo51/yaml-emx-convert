@@ -1,9 +1,11 @@
-from multiprocessing.sharedctypes import Value
 from yamlemxconvert.convert import loadYaml
 from os import path, remove
 import pandas as pd
 
 
+# @name __emx__attribs__to__emx
+# @description mappings for attribute names
+# @reference https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2/src/main/java/org/molgenis/emx2/Column.java
 __emx__attribs__to__emx2__ = {
     # 'entity': 'tableName', # processed in convert2 method
     'extends': 'tableExtends', 
@@ -21,12 +23,14 @@ __emx__attribs__to__emx2__ = {
 }
 
 
-# define mappings for all dataTypes (can change later)
+# @name __emx__datatypes__to__emx__
+# @description mapping dataTypes to columnTypes
+# @reference https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2/src/main/java/org/molgenis/emx2/ColumnType.java
 __emx__datatypes__to__emx2__ = {
     'bool' : 'bool',
     'categorical': 'ref',
     'categorical_mref': 'ref_array',
-    'compound': 'headings', # ???
+    'compound': 'heading', # ???
     'date' : 'date',
     'datetime' : 'datetime',
     'decimal' : 'decimal',
@@ -150,6 +154,9 @@ class Convert2():
         if 'entities' not in self._yaml:
             raise KeyError('EMX entities are not defined in YAML')
             
+        if not flattenNestedPkgs:
+            raise Warning(f'Nested packages will not be flattened. Make sure these are properly adjusted before import into EMX2.')
+            
         defaults = self._yaml.get('defaults')
         pkgName = self._yaml.get('name')
         molgenis = []
@@ -160,6 +167,8 @@ class Convert2():
                 data = entity,
                 tablename = entityName
             )
+            
+            entityMeta['columnName'] = None
             
             # recode `tableExtends`
             if entityMeta.get('tableExtends'):
@@ -177,13 +186,15 @@ class Convert2():
                         tablename = entityName
                     )
                     
-                    # recode `dataType` to `columnType`
+                    # assign YAML default if defined
                     if (not attrData.get('columnType')) and defaults.get('dataType'):
                         attrData['columnType'] = defaults.get('dataType')
                     
+                    # assign 'string' as default if applicable
                     if (not attrData.get('columnType')) and (not defaults.get('dataType')):
                         attrData['columnType'] = 'string'
                         
+                    # blanket recode of all `dataType` values into `columnType`
                     attrData['columnType'] = __emx__datatypes__to__emx2__[
                         attrData['columnType']
                     ]
