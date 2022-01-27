@@ -18,8 +18,8 @@
 # python setup.py bdist_wheel
 # ```
 
-# from emxconvert.convert2 import Convert2
-from yamlemxconvert.convert2 import Convert2
+from emxconvert.convert2 import Convert2
+# from yamlemxconvert.convert2 import Convert2
 c = Convert2(file = 'dev/example-emx2/index.yaml')
 c.convert()
 
