@@ -1,0 +1,159 @@
+#//////////////////////////////////////////////////////////////////////////////
+# NAME: umdm_emx1.yaml
+# AUTHOR: david ruvolo
+# CREATED: 2021-11-09
+# MODIFIED: 2021-12-07
+# PURPOSE: Unified Rare Disease Data Model lookups for EMX1
+# STATUS: maturing
+# COMMENTS: this is reduced version to testing purposes
+#//////////////////////////////////////////////////////////////////////////////
+
+# define package
+name: umdm
+label: UMDM
+description: Lookup tables for the Unified Molgenis Data Model (UMDM)
+parent: umdm
+tags: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
+version: 1.0.0
+date: 2021-12-07
+
+
+# set attribute level defaults
+defaults:
+  idAttribute: false
+  dataType: string
+  nillable: true
+  lookupAttribute: false
+  labelAttribute: false
+  visible: true
+  
+# define entities: use a template or create a new one. Any user managed lookup
+# should be defined in main file (`umdm_emx1.yaml`). 
+entities:
+
+  # @name attributeTemplateDefault
+  # @description attribute template for tables where `value` is the primary key
+  - name: attributeTemplateDefault
+    abstract: true
+    description: attribute template where value is the primary key
+    tags: http://purl.obolibrary.org/obo/NCIT_C45677
+    attributes:
+      - name: value
+        idAttribute: true
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+        tags: http://purl.obolibrary.org/obo/NCIT_C49100
+        description: The information contained in a data field. It may represent a numeric quantity, a textual characterization, a date or time measurement, or some other state, depending on the nature of the attribute.
+        
+      - name: description
+        dataType: text
+        tags: http://purl.obolibrary.org/obo/NCIT_C25365
+        description: A written or verbal account, representation, statement, or explanation of something
+      
+      - name: codesystem
+        tags: http://purl.obolibrary.org/obo/NCIT_C70895
+        description: A systematized collection of concepts that define corresponding codes.
+      
+      - name: code
+        tags: http://purl.obolibrary.org/obo/NCIT_C25162
+        description: A symbol or combination of symbols which is assigned to the members of a collection.
+      
+      - name: iri
+        dataType: hyperlink
+        tags: http://purl.obolibrary.org/obo/NCIT_C165071
+        description: A unique symbol that establishes identity of the resource.
+  
+  - name: anatomicalSource
+    description: Anatomical Source (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C103264
+    extends: umdm_lookups_attributeTemplateDefault
+  
+  - name: ancestry
+    description: Ancestry (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C176763
+    extends: umdm_lookups_attributeTemplateDefault
+  
+  - name: biospecimenType
+    description: Biospecimen Type (FAIR Genomes, v1.1)
+    tags: http://purl.obolibrary.org/obo/NCIT_C70713
+    extends: umdm_lookups_attributeTemplateDefault
+    
+  - name: participants
+    description: Persons who are observed, analyzed, examined, investigated, experimented upon, or/and treated in the course of a particular study
+    tags: http://purl.obolibrary.org/obo/ExO_0000127
+    attributes:
+      - name: subjectID
+        dataType: string
+        idAttribute: true
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+        description: An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored.
+        tags: http://purl.obolibrary.org/obo/NCIT_C142495
+        
+      - name: dateOfBirth
+        dataType: date
+        description: The calendar date on which a person was born.
+        tags: http://purl.obolibrary.org/obo/NCIT_C68615
+
+      - name: yearOfBirth
+        dataType: int
+        description: The year in which a person was born.
+        tags: http://purl.obolibrary.org/obo/NCIT_C83164
+
+      - name: dateOfDeath
+        dataType: date
+        description: The calendar date of subject's death.
+        tags: http://purl.obolibrary.org/obo/NCIT_C70810
+        
+      - name: yearOfDeath
+        dataType: int
+        description: The year in which an individual derived.
+        tags: http://purl.obolibrary.org/obo/NCIT_C156426
+
+      - name: ageAtDeath
+        dataType: decimal
+        description: The age at which death occurred.
+        tags: http://purl.obolibrary.org/obo/NCIT_C135383
+        
+      - name: ancestry
+        dataType: xref
+        refEntity: umdm_lookups_ancestry
+        description: Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data.
+        tags: http://purl.obolibrary.org/obo/NCIT_C176763
+      
+      - name: recordMetadata
+        dataType: compound
+        description: metadata is data that provides information about data.
+        tags: http://semanticscience.org/resource/SIO_001330
+
+      - name: comments
+        dataType: text
+        description: A written explanation, observation or criticism added to textual material.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C25393
+      
+      - name: dateRecordCreated
+        nillable: false
+        dataType: datetime
+        description: The date on which the activity or entity is created.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C164483
+
+      - name: recordCreatedBy
+        nillable: false
+        description: Indicates the person or authoritative body who brought the item into existence.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C42628
+
+      - name: dateRecordUpdated
+        dataType: datetime
+        description: The date (and time) on which report was updated after it had been submitted.
+        partOfAttribute: recordMetadata
+        tags: http://purl.obolibrary.org/obo/NCIT_C93629
+
+      - name: wasUpdatedBy
+        description: An entity which is updated by another entity or an agent.
+        partOfAttribute: recordMetadata
+        tags: https://w3id.org/reproduceme#wasUpdatedBy

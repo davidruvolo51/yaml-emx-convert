@@ -23,7 +23,7 @@
 from yamlemxconvert.convert import Convert
 
 # set paths to YAML data models
-c = Convert(files = ['dev/example/birddata.yaml'])
+c = Convert(files = ['dev/example-emx1/birddata.yaml'])
 
 # convert model with defaults
 c.convert()
@@ -41,17 +41,17 @@ c.data
 c.tags
 
 # write model to excel workbook
-c.write(name = "birddata", format = 'xlsx', outDir = 'dev/example/model/')
+c.write(name = "birddata", format = 'xlsx', outDir = 'dev/example-emx1/model/')
 
 
 # write model overview to file
-c.write_schema(path = 'dev/example/model/birddata_schema.md')
+c.write_schema(path = 'dev/example-emx1/model/birddata_schema.md')
 
 
 #//////////////////////////////////////////////////////////////////////////////
 
 # Run some basic tests
-c = Convert(files = ['dev/example/birddata.yaml'])
+c = Convert(files = ['dev/example-emx1/birddata.yaml'])
 
 # make sure fields are reset
 def checkEmxStructure(num_pkgs = 1, num_entities = 4):
@@ -103,5 +103,4 @@ checkEmxStructure(num_pkgs=1, num_entities=2)
             
 # checkPriorityNameKey(entity = 'birdData_states' , keysToCheck = ['name-projA', 'name-projB'])
 # checkPriorityNameKey(entity = 'birdData_species' , keysToCheck = ['name-species'])
-
-        
+    
