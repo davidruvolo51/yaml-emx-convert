@@ -18,7 +18,7 @@
 # python setup.py bdist_wheel
 # ```
 
-from emxconvert.convert2 import Convert2
+from yamlemxconvert.convert import Convert2
 # from yamlemxconvert.convert2 import Convert2
 c = Convert2(file = 'dev/example-emx2/index.yaml')
 c.convert()
@@ -27,8 +27,21 @@ c.model['molgenis']
 
 c.write(name='yaml_emx2', outDir = 'dev/example-emx2/')
 
-# alternate model
-d = Convert2(file = 'dev/example-emx1/birddata.yaml')
-d.convert()
 
-d.write(name='birddata_emx2', outDir = 'dev/example-emx2/')
+#//////////////////////////////////////
+
+# ~ 2 ~
+# Alternative Tests
+
+from yamlemxconvert.convert import Convert
+from yamlemxconvert.convert import Convert2
+
+file = 'dev/example-emx1/birddata.yaml'
+emx1 = Convert(files =[file])
+emx2 = Convert2(file = file)
+
+emx1.convert()
+emx2.convert()
+
+emx1.write(name='birddata_emx1', format='xlsx', outDir='~/Desktop/')
+emx2.write(name='birddata_emx2', format='xlsx', outDir = '~/Desktop/')

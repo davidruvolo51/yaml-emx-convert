@@ -103,8 +103,8 @@ __emx__attribs__to__emx2__ = {
 # @reference https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2/src/main/java/org/molgenis/emx2/ColumnType.java
 __emx__datatypes__to__emx2__ = {
     'bool' : 'bool',
-    'categorical': 'ref',
-    'categorical_mref': 'ref_array',
+    'categorical': 'ref', # TBD: ontology
+    'categorical_mref': 'ref_array', # TBD: ontology_array
     'compound': 'heading', # ???
     'date' : 'date',
     'datetime' : 'datetime',
@@ -116,7 +116,7 @@ __emx__datatypes__to__emx2__ = {
     'int': 'int',
     'long': 'int',  # use `int` for now
     'mref': 'ref_array',
-    'one_to_many': 'ref_array',
+    'one_to_many': 'refback', # process mappedBy
     'string': 'string',
     'text' : 'text',
     'xref': 'ref'
@@ -835,9 +835,7 @@ class emxWriter2:
             model (obj) : converted EMX model
             path (str) : output file path
         """
-
         wb = pd.ExcelWriter(path = path, engine = 'xlsxwriter')
-        
         for entity in model:
             df = pd.DataFrame(model[entity], index=range(0, len(model[entity])))
             df.to_excel(
@@ -848,21 +846,32 @@ class emxWriter2:
                 index = False
             )
             self.___xlsx__headers__(wb, df.columns.values, entity)
-            
         wb.save()
         
-class Convert2():
+    def writeCsv(self, model: list = None, dir: str = None):
+        """Write EMX2 to CSV
+        
+        Attributes:
+            model (obj) : list of dictionaries
+            dir  (str) : output directory
+        """
+        for entity in model:
+            df = pd.DataFrame(model[entity], index = range(0,len(model[entity])))
+            df.to_csv(dir + '/' + entity + '.csv', index = False)
     
+    
+class Convert2():
     def __init__(self, file: str = None):
         """Convert2
         Convert molgenis/molgenis YAML model to EMX2 format
         
         Attributes:
-            files (list): a list of files to convert
+            file (str): a list of files to convert
         
         Examples:
             ```
-            c = Convert2(files='path/to/my/model.yaml')
+            from yamlemxconvert.convert import Convert2
+            c = Convert2(file = 'path/to/my/model.yaml')
             ```
         """
         self.file = file
@@ -870,6 +879,13 @@ class Convert2():
         self._yaml = loadYaml(file = self.file)
     
     def __data__to__emx2__(self, data: dict = {}, tablename: str = None):
+        """Map molgenis/molgenis to EMX2
+        Pull data from EMX1 model and map to EMX2 attributes
+        Attributes:
+            data (dict) : a dict in entity['attributes']
+            tablename (str) : name of the entity that `data` is associated
+                with (i.e., entity name)
+        """
         return {
             'tableName': tablename,
             'tableExtends': data.get('extends'),
@@ -884,7 +900,21 @@ class Convert2():
             'description': data.get('description')
         }
         
-    def __refEntity__to__refSchema__(self, pkgName, value, flattenNestedPkgs):
+    def __refEntity__to__refSchema__(
+        self,
+        pkgName: str = None,
+        value: str = None,
+        flattenNestedPkgs: bool = True
+    ):
+        """Convert refEntity to refSchema
+        If applicable, split the refEntity value and extract value for refSchema
+        
+        Attributes:
+            pkgName (str): name of the current EMX1 package
+            value (str) : refEntity value
+            flattenNestedPkgs (bool): If True (default), the nested package
+                identifier will be ignored
+        """
         schema = value.split('_')[:-1]
         
         if flattenNestedPkgs:
@@ -898,7 +928,13 @@ class Convert2():
         return schema if schema else None
     
             
-    def __refEntity__to__refTable__(self, value):
+    def __refEntity__to__refTable__(self, value: str = None):
+        """RefEntity to RefTable
+        Extract the table name from RefEntity
+        
+        Attributes:
+            value (str) : value for refEntity
+        """
         return value.split('_')[-1]
 
     
@@ -912,7 +948,6 @@ class Convert2():
             flattenNestedPkgs (bool) : If True (default), all nested EMX packages
                 will be flattened so that the `refEntity` can be transformed into
                 `refSchema`
-            
         """
         print(f'Processing model: {self.filename}')
         self.model = {}
@@ -921,7 +956,7 @@ class Convert2():
             raise KeyError('EMX entities are not defined in YAML')
             
         if not flattenNestedPkgs:
-            raise Warning(f'Nested packages will not be flattened. Make sure these are properly adjusted before import into EMX2.')
+            raise Warning(f'Nested packages will not be flattened. Make sure these are properly adjusted before importing into a EMX2 instance.')
             
         defaults = self._yaml.get('defaults')
         pkgName = self._yaml.get('name')
@@ -1021,9 +1056,6 @@ class Convert2():
             writer.writeXlsx(model = self.model, path = file)
           
         # not yet implemented!!  
-        # if format == 'csv':
-        #     dir = getcwd() if outDir == '.' else path.abspath(outDir)
-        #     if not path.exists(dir):
-        #         raise ValueError(f'Path {dir} does not exist')
-            
-        #     writer.writeCsv(model = self.model, dir = dir)
+        if format == 'csv':
+            dir = getcwd() if outDir == '.' else str(outDir)
+            writer.writeCsv(model = self.model, dir = dir)
