@@ -464,6 +464,8 @@ class Convert:
         self.attributes = []
         self.tags = []
         self.data = {}
+        self.date = None,
+        self.version = None
         self.priorityNameKey = None
         self.lang_attrs = ('label-', 'description-')
     
@@ -492,8 +494,10 @@ class Convert:
             pkgMeta = {}
             if 'version' in keys:
                 pkgMeta['version'] = "v" + str(data['version'])
+                self.version = str(data['version'])
             if 'date' in keys:
                 pkgMeta['date'] = str(data['date'])
+                self.date = str(data['date'])
             if pkgMeta:
                 if 'description' in keys:
                     pkg['description'] = '{} ({})'.format(
