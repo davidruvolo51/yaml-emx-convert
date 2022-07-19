@@ -1,18 +1,18 @@
 {
   "name": "emxconvert",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "repository": "https://github.com/davidruvolo51/yaml-emx-convert",
   "author": "davidruvolo51",
   "license": "MIT",
   "scripts": {
     "rename": "python3 dev/dev.py",
-    "bumpversion:patch": "bump2version --current-version 1.0.0 patch package.json yamlemxconvert/__version__.py setup.py --allow-dirty",
-    "bumpversion:minor": "bump2version --current-version 1.0.0 minor package.json yamlemxconvert/__version__.py setup.py",
-    "bumpversion:major": "bump2version --current-version 1.0.0 major package.json yamlemxconvert/__version__.py setup.py",
+    "bumpversion:patch": "bump2version --current-version 1.1.0 patch package.json yamlemxconvert/__version__.py setup.py --allow-dirty",
+    "bumpversion:minor": "bump2version --current-version 1.1.0 minor package.json yamlemxconvert/__version__.py setup.py",
+    "bumpversion:major": "bump2version --current-version 1.1.0 major package.json yamlemxconvert/__version__.py setup.py",
     "py:build": "python3 setup.py sdist bdist_wheel",
     "py:check": "twine check dist/*",
-    "py:install": "pip install dist/yamlemxconvert-1.0.0.tar.gz",
+    "py:install": "pip install dist/yamlemxconvert-1.1.0.tar.gz",
     "deploy:prod": "twine upload dist/*",
     "deploy:test": "twine upload --repository testpypi dist/*"
   }
