@@ -1,0 +1,261 @@
+name: birdData
+label: Bird Data
+description: Reporting Rates of Australian Bird Species
+tags: dcat:catalog
+version: 1.0.0
+date: 2021-11-12
+
+# set defaults
+defaults:
+  idAttribute: false
+  auto: false
+  dataType: string
+  nillable: True
+  
+# define semantic tags
+tagDefinitions:
+  - identifier: dcat:catalog
+    label: dcat:Catalog
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+    
+  - identifier: dcat:dataset
+    label: Dataset
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+
+  - identifier: ISO:3166
+    label: Australian States and Territories
+    objectIRI: https://www.iso.org/obp/#iso:code:3166:AU
+    codeSystem: ISO
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+
+# define pkg entities
+entities:
+
+  # @section template
+  # @description template for lookup tables
+  - name: template
+    description: lookup table attribute template
+    abstract: true
+    attributes:
+      - name: value
+        idAttribute: true
+        dataType: string
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+      - name: description
+      - name: codesystem
+      - name: code
+      - name: iri
+        dataType: hyperlink
+  
+  - name: wings
+    description: reference for wing characteristics
+    extends: birdData_template
+    
+  - name: colors
+    description: reference for colors and patterns
+    extends: birdData_template
+    
+  - name: conservationStatus
+    description: reference for conservation status
+    extends: birdData_template
+
+  - name: states
+    label: Australian States
+    label-nl: Australische Staten
+    description: Australian States and Territories
+    tags: ISO:3166,dcat:dataset
+    attributes:
+      - name: code
+        name-projA: id
+        name-projB: identifier
+        label: code
+        description: state code
+        idAttribute: true
+        dataType: string
+      - name: category
+        name-projA: states
+        name-projB: regionType
+        label: category
+        description: state type (state or territory)
+      - name: name
+        name-projA: states
+        name-projB: regionName
+        label: name
+        label-nl: naam
+        description: state name
+    data:          
+      - code: AU-ACT
+        category: territory
+        name: Australian Capital Territory
+      - code: AU-NSW
+        category: state
+        name: New South Wales
+      - code: AU-NT
+        category: territory
+        name: Northern Territory
+      - code: AU-QLD
+        category: state
+        name: Queensland
+      - code: AU-SA
+        category: state
+        name: South Australia
+      - code: AU-TAS
+        category: state
+        name: Tasmania
+      - code: AU-VIC
+        category: state
+        name: Victori
+      - code: AU-WA
+        category: state
+        name: Western Australia
+
+  - name: species
+    label: Species
+    label-nl: Soorten
+    description: Reporting Counts and Rates by Species
+    tags: dcat:dataset
+    attributes:
+      - name: birdID
+        name-species: speciesID
+        label: BirdID
+        description: Species Identifier
+        idAttribute: true
+        nillable: false
+
+      - name: commonName
+        label: Common Name
+        description: Commonly used name for a species
+
+      - name: scientificName
+        label: Scientific Name
+        label-nl: Wetenschappelijke naam
+        description: Scientific name for a species
+
+      - name: count
+        label: Count
+        dataType: int
+
+      - name: reportingRate
+        label: Reporting Rate
+        description: Percent reported
+        dataType: decimal
+
+      - name: primaryReportingTerritories
+        label: Primary Reporting Territories
+        dataType: mref
+        refEntity: birdData_states
+
+    data:
+      - birdID: b1
+        commonName: Australian Magpie
+        scientificName: Gymnorhina tibicen
+        count: 827073
+        reportingRate: 35.83
+        primaryReportingTerritories: AU-NSW,AU-VIC
+        
+      - birdID: b2
+        commonName: Magpie-lark
+        scientificName: Grallina cyanoleuca
+        count: 639974
+        reportingRate: 27.72
+        primaryReportingTerritories: AU-NSW,AU-VIC
+        
+      - birdID: b3
+        commonName: Willie Wagtail
+        scientificName: Rhipidura leucophrys
+        count: 583676
+        reportingRate: 25.28
+        primaryReportingTerritories: AU-NSW,AU-VIC
+
+      - birdID: b4
+        commonName: Welcome Swallow
+        scientificName: Hirundo neoxena
+        count: 511975
+        reportingRate: 22.18
+        primaryReportingTerritories: AU-NSW,AU-VIC
+        
+      - birdID: b5
+        commonName: Galah
+        scientificName: Eolophus roseicapilla
+        count: 473094
+        reportingRate: 20.49
+        primaryReportingTerritories: AU-NSW,AU-VIC
+        
+      - birdID: b6
+        commonName: Red Wattlebird
+        scientificName: Anthochaera carunculata
+        count: 457405
+        reportingRate: 19.81
+        primaryReportingTerritories: AU-VIC,AU-NSW
+        
+      - birdID: b7
+        commonName: Rainbow Lorikeet
+        scientificName: Trichoglossus moluccanus
+        count: 453342
+        reportingRate: 19.64
+        primaryReportingTerritories: AU-NSW,AU-VIC,AU-QLD
+        
+      - birdID: b8
+        commonName: Superb Fairy-wren
+        scientificName: Malurus cyaneus
+        count: 442306
+        reportingRate: 19.16
+        primaryReportingTerritories: AU-NSW,AU-VIC
+      
+      - birdID: b9
+        commonName: Pacific Black Duck
+        scientificName: Anas superciliosa
+        count: 427747
+        reportingRate: 18.53
+        primaryReportingTerritories: AU-NSW,AU-VIC
+      
+      - birdID: b10
+        commonName: Grey Fantail
+        scientificName: Rhipidura fuliginosa
+        count: 423237
+        reportingRate: 18.33
+        primaryReportingTerritories: AU-NSW,AU-VIC
+      
+      - birdID: b11
+        commonName: Masked Lapwing
+        scientificName: Vanellus miles
+        count: 417690
+        reportingRate: 18.09
+        primaryReportingTerritories: AU-VIC,AU-NSW
+      
+      - birdID: b12
+        commonName: Noisy Miner
+        scientificName: Manorina melanocephala
+        count: 383926
+        reportingRate: 16.63
+        primaryReportingTerritories: AU-NSW,AU-VIC
+      
+      - birdID: b13
+        commonName: Laughing Kookaburra
+        scientificName: Dacelo novaeguineae
+        count: 379833
+        reportingRate: 16.45
+        primaryReportingTerritories: AU-NSW,AU-VIC,AU-QLD
+      
+      - birdID: b14
+        commonName: Crested Pigeon
+        scientificName: Ocyphaps lophotes
+        count: 375735
+        reportingRate: 16.28
+        primaryReportingTerritories: AU-NSW,AU-VIC
+      
+      - birdID: b15
+        commonName: Australian Raven
+        scientificName: Corvus coronoides
+        count: 357750
+        reportingRate: 15.50
+        primaryReportingTerritories: AU-VIC,AU-NSW

@@ -1,0 +1,118 @@
+name: birdData_refs
+label: Bird Data
+description: Reference Tables
+tags: dcat:catalog
+parent: birdData
+
+# set defaults
+defaults:
+  idAttribute: false
+  auto: false
+  dataType: string
+  nillable: True
+  
+# define semantic tags
+tagDefinitions:
+  - identifier: dcat:catalog
+    label: dcat:Catalog
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Class:Catalog
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+    
+  - identifier: dcat:dataset
+    label: Dataset
+    objectIRI: https://www.w3.org/TR/vocab-dcat-3/#Property:catalog_dataset
+    codeSystem: dcat
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+
+  - identifier: ISO:3166
+    label: Australian States and Territories
+    objectIRI: https://www.iso.org/obp/#iso:code:3166:AU
+    codeSystem: ISO
+    relationLabel: isAssociatedWith
+    relationIRI: http://molgenis.org#isAssociatedWith
+
+# define pkg entities
+entities:
+
+  # @section template
+  # @description template for lookup tables
+  - name: template
+    description: lookup table attribute template
+    abstract: true
+    attributes:
+      - name: value
+        idAttribute: true
+        dataType: string
+        nillable: false
+        lookupAttribute: true
+        labelAttribute: true
+      - name: description
+      - name: codesystem
+      - name: code
+      - name: iri
+        dataType: hyperlink
+  
+  - name: wings
+    description: reference for wing characteristics
+    extends: birdData_template
+    
+  - name: colors
+    description: reference for colors and patterns
+    extends: birdData_template
+    
+  - name: conservationStatus
+    description: reference for conservation status
+    extends: birdData_template
+
+  - name: states
+    label: Australian States
+    label-nl: Australische Staten
+    description: Australian States and Territories
+    tags: ISO:3166,dcat:dataset
+    attributes:
+      - name: code
+        name-projA: id
+        name-projB: identifier
+        label: code
+        description: state code
+        idAttribute: true
+        dataType: string
+      - name: category
+        name-projA: states
+        name-projB: regionType
+        label: category
+        description: state type (state or territory)
+      - name: name
+        name-projA: states
+        name-projB: regionName
+        label: name
+        label-nl: naam
+        description: state name
+    data:          
+      - code: AU-ACT
+        category: territory
+        name: Australian Capital Territory
+      - code: AU-NSW
+        category: state
+        name: New South Wales
+      - code: AU-NT
+        category: territory
+        name: Northern Territory
+      - code: AU-QLD
+        category: state
+        name: Queensland
+      - code: AU-SA
+        category: state
+        name: South Australia
+      - code: AU-TAS
+        category: state
+        name: Tasmania
+      - code: AU-VIC
+        category: state
+        name: Victori
+      - code: AU-WA
+        category: state
+        name: Western Australia
