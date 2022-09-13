@@ -9,6 +9,15 @@
 # COMMENTS: NA
 #///////////////////////////////////////////////////////////////////////////////
 
+
+# EMX1 Conversion
+from yamlemxconvert.convert import Convert
+emx = Convert(files = ['tests/models/model_simple/birddata.yaml'])
+emx.convert()
+emx.compileSemanticTags()
+emx.tags
+
+# EMX2 Converstion
 from yamlemxconvert.convert2 import Convert2
 
 model = Convert2(file = 'tests/models/model_complex/birddata.yaml')
