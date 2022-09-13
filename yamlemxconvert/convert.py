@@ -1,4 +1,5 @@
 from os import path, getcwd, remove
+from tkinter import N
 from yamlemxconvert.utils import loadYaml
 from yamlemxconvert.markdownWriter import markdownWriter
 from yamlemxconvert.emxWriter import emxWriter
@@ -9,6 +10,7 @@ from yamlemxconvert.mappings import (
   __emx__keys__datatype__,
   __emx__keys__tags__
 )
+import re
 
 class Convert:
   def __init__(self, files: list = []):
@@ -192,13 +194,70 @@ class Convert:
       if 'attributes' in emx: self.attributes.extend(emx['attributes'])
       if 'data' in emx: self.data.update(emx['data'])
 
-  def write(
-      self,
-      name: str = None,
-      format: str = 'xlsx',
-      outDir: str = '.',
-      includeData: bool = True
-  ):
+  def compileSemanticTags(self):
+    """Comple Semantic Tags
+    For models that use ontology codes and IRIs, this method helps prepare
+    the dataset for import into Molgenis. Codes should be formatted in the
+    following way: <ontology_code> <iri>. For example, if we were using an
+    ontology term for "data model". Write the attribute with the tag
+    property like so.
+    
+    ```
+    - name: datamodel
+      tags: NCIT_C142487 http://purl.obolibrary.org/obo/NCIT_C142487
+      ...
+    ```
+    
+    Use a source like https://www.ebi.ac.uk/ols to search for ontology terms.
+    Make sure codes are formatted with an underscore. The first part should be
+    the name of the ontology and the second part should be the code for the
+    term: <ontology_code> <iri>.
+    
+    Running this function automatically processes the EMX model objects.
+    """
+    self.tags.extend(self._prepareSemanticTags(self.packages))
+    self.tags.extend(self._prepareSemanticTags(self.entities))
+    self.tags.extend(self._prepareSemanticTags(self.attributes))
+    self._prepareSemanticIdentifiers(self.packages)
+    self._prepareSemanticIdentifiers(self.entities)
+    self._prepareSemanticIdentifiers(self.attributes)
+    
+  def _prepareSemanticTags(self, data):
+    """Prepare Semantic Tags
+    @param data an emx model object
+    """
+    rawTags=list(set([row['tags'] for row in data if 'tags' in row]))
+    tags = []
+    for tag in rawTags:
+      tagRecord = self.__newTagRecord__(tag)
+      if re.search(r'^([0-9a-zA-Z]{1,}([:_])[0-9a-zA-Z]{1,}\s+([a-zA-Z0-9.]{1,}))', tag):
+        newlabel = re.split(r'\s+', tag)[0]
+        tagRecord['identifier'] = newlabel
+        tagRecord['label'] = newlabel
+        tagRecord['codeSystem'] = re.split(r'[:_]', newlabel)[0]
+        tagRecord['objectIRI'] = re.split(r'\s+',tag)[1]
+      tags.append(tagRecord)
+    return tags
+    
+  def __newTagRecord__(self, tag):
+    return {
+      'identifier': tag,
+      'label': tag,
+      'objectIRI': None,
+      'codeSystem': None,
+      'relationLabel': 'isAssociatedWith',
+      'relationIRI': 'http://molgenis.org#isAssociatedWith'
+    }
+    
+  def _prepareSemanticIdentifiers(self, data: list=[]):
+    """Extract Tag Identifier
+    @param data input dataset from yamlemxconvert.convert (packages, entities, etc.)
+    """
+    for row in data:
+      if row.get('tags'):
+        row['tags']=row['tags'].split(' ')[0]
+
+  def write(self, name=None, format='xlsx', outDir='.', includeData=True):
     """Write EMX to csv or xlsx
     Write the EMX model to file as csv or xlsx. If excel workbook format is
     selected, all data will be written in the standard EMX excel format (
