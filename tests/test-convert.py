@@ -2,7 +2,7 @@
 import pytest
 from yamlemxconvert.convert import Convert
 
-emx = Convert(files=['tests/examples/birddata.yaml'])
+emx = Convert(files=['tests/models/model_simple/birddata.yaml'])
 emx.convert()
 
 def test_emx_properties_are_defined():
@@ -34,3 +34,7 @@ def test_emx_attributes_have_valid_package():
     if attr['entity'] in entities:
       counter += 1
   assert counter == len(emx.attributes), 'Package format is not properly defined in emx.attributes'
+  
+  
+def test_semantic_tags_are_built():
+  emx.compileSemanticTags()

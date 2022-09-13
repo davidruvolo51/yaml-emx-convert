@@ -50,11 +50,26 @@ entities:
         nillable: false
         lookupAttribute: true
         labelAttribute: true
+        tags: NCIT_C49100 http://purl.obolibrary.org/obo/NCIT_C49100
+        description: The information contained in a data field. It may represent a numeric quantity, a textual characterization, a date or time measurement, or some other state, depending on the nature of the attribute.
+
       - name: description
+        dataType: text
+        tags: NCIT_C25365 http://purl.obolibrary.org/obo/NCIT_C25365
+        description: A written or verbal account, representation, statement, or explanation of something
+      
       - name: codesystem
+        tags: NCIT_C70895 http://purl.obolibrary.org/obo/NCIT_C70895
+        description: A systematized collection of concepts that define corresponding codes.
+
       - name: code
+        tags: NCIT_C25162 http://purl.obolibrary.org/obo/NCIT_C25162
+        description: A symbol or combination of symbols which is assigned to the members of a collection.
+      
       - name: iri
         dataType: hyperlink
+        tags: NCIT_C165071 http://purl.obolibrary.org/obo/NCIT_C165071
+        description: A unique symbol that establishes identity of the resource.
   
   - name: wings
     description: reference for wing characteristics
@@ -113,7 +128,7 @@ entities:
         name: Tasmania
       - code: AU-VIC
         category: state
-        name: Victori
+        name: Victoria
       - code: AU-WA
         category: state
         name: Western Australia
