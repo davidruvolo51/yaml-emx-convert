@@ -18,7 +18,7 @@ URL = 'https://github.com/davidruvolo51/yaml-emx-convert'
 EMAIL = 'd.c.ruvolo@gmail.com'
 AUTHOR = 'David Ruvolo'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 # What packages are required for this module to be executed?
 REQUIRED = [

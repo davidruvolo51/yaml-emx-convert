@@ -36,7 +36,7 @@ class Convert2():
       'columnName': data.get('name'),
       'columnType': data.get('dataType'),
       'key': data.get('idAttribute'),
-      'required': data.get('nillable'),
+      'required': not data['nillable'] if data.get('nillable') is not None else None,
       'refSchema': data.get('refEntity'),
       'refTable': data.get('refEntity'),
       'validation': data.get('validationExpression'),
