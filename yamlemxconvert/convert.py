@@ -62,7 +62,7 @@ class Convert:
         self.date = str(data['date'])
       if pkgMeta:
         if 'description' in keys:
-          pkg['description'] = pkg['description'] + '(' + ', '.join(pkgMeta.values()) + ')'
+          pkg['description'] = pkg['description'] + ' (' + ', '.join(pkgMeta.values()) + ')'
         else:
           pkg['description'] = '; '.join(pkgMeta.values())
     return pkg
