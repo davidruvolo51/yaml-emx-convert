@@ -84,23 +84,23 @@ class markdownWriter():
     thead = []
     tbody = []
     separators = []
-    for i, k in enumerate(data[0].keys()):
-      if i == 0:
-        thead.append(f'| {k} |')
-        separators.append(f'|:{char * len(k) } |')
+    for index, key in enumerate(data[0].keys()):
+      if index == 0:
+        thead.append(f'| {key} |')
+        separators.append(f'|:{char * len(key) } |')
       else:
-        thead.append(f' {k} |')
-        separators.append(f':{char * len(k) }|')
+        thead.append(f' {key} |')
+        separators.append(f':{char * len(key) }|')
             
-    for d in data:
-      row = []
-      for n, el in enumerate(d):
-        if n == 0:
-          row.append(f'| {d[el]} |')
+    for row in data:
+      tablerow = []
+      for index, column in enumerate(row):
+        if index == 0:
+          tablerow.append(f'| {row[column]} |')
         else:
-          row.append(f' {d[el]} |')
-      row.append('\n')
-      tbody.append(''.join(row))
+          tablerow.append(f' {row[column]} |')
+      tablerow.append('\n')
+      tbody.append(''.join(tablerow))
     
     self.__write__(''.join(thead),'\n',''.join(separators),'\n',''.join(tbody))
 

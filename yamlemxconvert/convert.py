@@ -1,5 +1,4 @@
 from os import path, getcwd, remove
-from tkinter import N
 from yamlemxconvert.utils import loadYaml
 from yamlemxconvert.markdownWriter import markdownWriter
 from yamlemxconvert.emxWriter import emxWriter
@@ -357,7 +356,7 @@ class Convert:
           if d.get('idAttribute', None):
             entryAttribs['Name'] = entryAttribs['Name'] + '&#8251;'
           entityAttribs.append(entryAttribs)
-          md.table(entityAttribs)
+        md.table(entityAttribs)
     md.linebreaks(n = 1)
     md.text('Note: The symbol &#8251; denotes attributes that are primary keys')
     md.save()
