@@ -9,13 +9,21 @@
 # COMMENTS: NA
 #///////////////////////////////////////////////////////////////////////////////
 
-
 # EMX1 Conversion
 from yamlemxconvert.convert import Convert
 emx = Convert(files = ['tests/models/model_simple/birddata.yaml'])
 emx.convert()
 emx.compileSemanticTags()
-emx.tags
+emx.write_schema('dev/model_schema.md')
+
+data = [
+  { 'group': 'a', 'value': 35412 },
+  { 'group': 'a', 'value': 24213 },
+  { 'group': 'b', 'value': 57311 },
+  { 'group': 'b', 'value': 56315 },
+  { 'group': 'c', 'value': 23534 },
+]
+
 
 # EMX2 Converstion
 from yamlemxconvert.convert2 import Convert2
